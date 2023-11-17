@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "9005:9005"
+    volumes:
+      - "./functions:/app"
+      - "$HOME/.ssh/:/root/.ssh/"
