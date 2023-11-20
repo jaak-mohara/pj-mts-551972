@@ -1,4 +1,4 @@
-const { getWeekAgoDate } = require('../../helpers/date');
+const { getWeeksAgoDate } = require('../../helpers/date');
 const { get } = require('../../utils/fetch');
 
 /**
@@ -11,7 +11,7 @@ exports.getWeeklyMetrics = async (
   startDate = null,
   endDate = null,
 ) => {
-  const start = `start_date=${startDate || getWeekAgoDate()}`;
+  const start = `start_date=${startDate || getWeeksAgoDate()}`;
   const end = endDate ? `&end_date=${endDate}` : '';
 
   return get(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?${start}${end}&team_id=${teamId}&include_nested_teams=true&resolution=week`);
@@ -20,8 +20,9 @@ exports.getWeeklyMetrics = async (
 /**
  * Returns an averaged list of coding metrics for the team over the last 4 weeks.
  * @param {string} teamId
+ * @param {number}  weeksAgo
  * @return {Promise<[{count: number, results: object[]}]>}
  */
-exports.getCodingMetricsBaselines = async (teamId) => {
-  return get()
+exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
+  return get('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2021-06-01&end_date=2021-06-30&team_id=12345&include_nested_teams=true&resolution=period')
 };
