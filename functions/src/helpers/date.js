@@ -1,9 +1,12 @@
+const moment = require('moment');
+
 /**
  * Get the date from a week ago in the format yyyy-mm-dd.
+ * @param {Date} date
  * @return {string}
  */
-exports.getWeekAgoDate = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - 7);
-  return date.toISOString().split('T')[0];
+exports.getWeekAgoDate = (requestDate = null) => {
+  const date = moment(requestDate || new Date());
+  const response = date.subtract(1, 'week');
+  return response.format('YYYY-MM-DD');
 };

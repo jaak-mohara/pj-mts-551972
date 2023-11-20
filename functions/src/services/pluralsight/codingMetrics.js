@@ -16,3 +16,12 @@ exports.getWeeklyMetrics = async (
 
   return get(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?${start}${end}&team_id=${teamId}&include_nested_teams=true&resolution=week`);
 };
+
+/**
+ * Returns an averaged list of coding metrics for the team over the last 4 weeks.
+ * @param {string} teamId
+ * @return {Promise<[{count: number, results: object[]}]>}
+ */
+exports.getCodingMetricsBaselines = async (teamId) => {
+  return get()
+};
