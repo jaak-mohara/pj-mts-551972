@@ -1,3 +1,6 @@
+const { getWeekAgoDate } = require('../../helpers/date');
+const { get } = require('../../utils/fetch');
+
 /**
  * Returns a summarised list of coding metrics in the week for the given team.
  * @param {string} teamId
@@ -8,5 +11,8 @@ exports.getWeeklyMetrics = async (
   startDate = null,
   endDate = null,
 ) => {
-  return get(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2021-06-01&end_date=2021-06-30&team_id=12345&include_nested_teams=true&resolution=week`);
+  const start = `start_date=${startDate || getWeekAgoDate()}`;
+  const end = endDate ? `&end_date=${endDate}` : '';
+
+  return get(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?${start}${end}&team_id=${teamId}&include_nested_teams=true&resolution=week`);
 };
