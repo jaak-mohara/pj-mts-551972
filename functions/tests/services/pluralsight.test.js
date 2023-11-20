@@ -34,14 +34,14 @@ describe('pluralsight_service', () => {
       expect(metrics.results).toBeDefined();
     });
 
-    it('should return an average of the codeing metrics for that past 4 weeks', async () => {
+    it('should return an average of the codeing metrics for the past 4 weeks', async () => {
       const { getCodingMetricsBaselines } = require('../../src/services/pluralsight/codingMetrics');
       const metrics = await getCodingMetricsBaselines(singleTeam.id);
 
       expect(metrics).toBeDefined();
       expect(metrics.count).toBeDefined();
       expect(metrics.results).toBeDefined();
-      expect(metrics.result.length).toBe(1);
+      expect(metrics.results.length).toBe(1);
     });
   });
 });
