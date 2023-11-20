@@ -11,10 +11,11 @@ exports.getWeeklyMetrics = async (
   startDate = null,
   endDate = null,
 ) => {
-  const start = `start_date=${startDate || getWeeksAgoDate()}`;
-  const end = endDate ? `&end_date=${endDate}` : '';
-
-  return get(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?${start}${end}&team_id=${teamId}&include_nested_teams=true&resolution=week`);
+  return exports.getCodingMetricsForPeriod(
+    teamId,
+    `start_date=${startDate || getWeeksAgoDate()}`,
+    endDate ? `&end_date=${endDate}` : ''
+  );
 };
 
 /**
@@ -24,15 +25,29 @@ exports.getWeeklyMetrics = async (
  * @return {Promise<[{count: number, results: object[]}]>}
  */
 exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
-  const startDate = `start_date=${getWeeksAgoDate(null, weeksAgo)}`;
-  const endDate = `&endDate=${getCurrentDate()}`;
-
-  return exports.getCodingMetricsForPeriod(teamId, startDate, endDate);
+  return exports.getCodingMetricsForPeriod(
+    teamId,
+    `start_date=${getWeeksAgoDate(null, weeksAgo)}`,
+    `&endDate=${getCurrentDate()}`
+  );
 };
 
+/**
+ * Fetches the summary of the coding metrics for the team as a single list for the period.
+ * @param {string} teamId 
+ * @param {string} startDate 
+ * @param {string} endDate 
+ * @return {Promise<[{count: number, results: object[]}]>}
+ */
 exports.getCodingMetricsForPeriod = async (teamId, startDate, endDate) => {
   return get(
     'https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/' +
     `?${startDate}${endDate}&team_id=${teamId}&include_nested_teams=true&resolution=period`
   );
 }
+
+exports.getNormalisedCodingMetrics = async (teamId) => {
+  const { results: weeklyResults } = await exports.getWeeklyMetrics(teamId);
+  const { results: baselineResults } = await exports.getCodingMetricsBaselines(teamId);
+
+};
