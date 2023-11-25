@@ -2,7 +2,14 @@ const { get } = require('../../utils/fetch');
 
 /**
  * Retrieves a list of commits for a given team.
- * @return {Promise<[{id: string, message: string, timestamp: string, url: string}]>}
+ * 
+ * @typedef { Commit } Commit
+ * @property { string } id
+ * @property { string } message
+ * @property { string } timestamp
+ * @property { string } url
+ * 
+ * @return {Promise<[Commit]>}
  */
 exports.getCommits = async () => {
   return get('https://flow.pluralsight.com/v3/customer/core/commits/');

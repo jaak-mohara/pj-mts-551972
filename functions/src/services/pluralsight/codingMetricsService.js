@@ -6,7 +6,7 @@ const { get } = require('../../utils/fetch');
  * @param {string} teamId
  * @return {Promise<[{count: number, next?: number, previous?: number, results: object[]}]>}
  */
-exports.getWeeklyMetrics = async (
+exports.getWeeklyMetrics = (
   teamId,
   startDate = null,
   endDate = null,
@@ -24,7 +24,7 @@ exports.getWeeklyMetrics = async (
  * @param {number}  weeksAgo
  * @return {Promise<[{count: number, results: object[]}]>}
  */
-exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
+exports.getCodingMetricsBaselines = (teamId, weeksAgo = 4) => {
   return exports.getCodingMetricsForPeriod(
     teamId,
     `start_date=${getWeeksAgoDate(null, weeksAgo)}`,
@@ -39,15 +39,10 @@ exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
  * @param {string} endDate 
  * @return {Promise<[{count: number, results: object[]}]>}
  */
-exports.getCodingMetricsForPeriod = async (teamId, startDate, endDate) => {
+exports.getCodingMetricsForPeriod = (teamId, startDate, endDate) => {
+  const team = teamId ? `&team_id=${teamId}` : '';
   return get(
     'https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/' +
-    `?${startDate}${endDate}&team_id=${teamId}&include_nested_teams=true&resolution=period`
+    `?${startDate}${endDate}${team}&include_nested_teams=true&resolution=period`
   );
 }
-
-exports.getNormalisedCodingMetrics = async (teamId) => {
-  const { results: weeklyResults } = await exports.getWeeklyMetrics(teamId);
-  const { results: baselineResults } = await exports.getCodingMetricsBaselines(teamId);
-
-};
