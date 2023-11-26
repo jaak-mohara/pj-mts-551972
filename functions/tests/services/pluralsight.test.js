@@ -3,10 +3,11 @@ const mockMomentFormat = jest.fn();
 
 const moment = require('moment');
 
-const { exampleObjectMetadata } = require('firebase-functions-test/lib/providers/storage');
 const { singleTeam, teamList } = require('../mockObjects/teams');
 const { team_period } = require('../mockObjects/codingMetrics');
-const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages, globalCollaborationBaselines } = require('../mockObjects/collaboration');
+const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages, globalCollaborationBaselines,
+  adjustedGlobalCollaborationBaselines } = require('../mockObjects/collaboration');
+const { getDateRange } = require('../../src/helpers/date');
 
 require('dotenv').config();
 
@@ -175,13 +176,16 @@ describe('pluralsight_service', () => {
       it('should adjust the collaboration baselines to account for the number of weeks in the date range', async () => {
         mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
 
-        const { getCollaborationMetricBaselines } = require('../../src/services/pluralsight/collaborationService');
-        const metrics = (await getCollaborationMetricBaselines())
-          .changeToWeekly();
+        const { getCollaborationMetricBaselines, changeToWeekly } = require('../../src/services/pluralsight/collaborationService');
+        const period = getDateRange('2023-11-25', 4);
+        const metrics = await getCollaborationMetricBaselines();
+        const weekAdjustedMetrics = changeToWeekly(metrics, period.startDate, period.endDate);
+
 
         mock && expect(mockGet).toHaveBeenCalledTimes(1);
         mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average');
-        expect(metrics).toBeTruthy();
+        expect(weekAdjustedMetrics).toBeTruthy();
+        expect(weekAdjustedMetrics).toMatchObject(adjustedGlobalCollaborationBaselines);
       });
     });
   });

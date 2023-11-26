@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const { get } = require("../../utils/fetch");
 const { divideNumbersInObject } = require("../../utils/objects");
+const { getDateRange } = require('../../helpers/date');
 
 /**
  * Returns a list of the collaboration metrics to use as a baseline.
@@ -14,11 +15,19 @@ const { divideNumbersInObject } = require("../../utils/objects");
  */
 exports.getCollaborationMetricBaselines = async (
   teamId = null,
+  startDate = null,
+  endDate = null,
 ) => {
-  const endDate = moment().format('YYYY-MM-DD');
-  const startDate = moment().subtract(4, 'weeks').format('YYYY-MM-DD');
+  let period = null;
+  if (!startDate || !endDate) {
+    period = getDateRange(endDate || moment().format('YYYY-MM-DD'), 4);
+  }
 
-  return exports.getCollaborationMetrics(teamId, startDate, endDate);
+  return exports.getCollaborationMetrics(
+    teamId,
+    startDate || period.startDate,
+    endDate || period.endDate
+  );
 };
 
 /**
@@ -33,6 +42,7 @@ exports.getCollaborationMetricBaselines = async (
 exports.getWeeklyCollaborationMetricBaselines = async (
   teamId = null,
 ) => {
+  const { startDate, endDate } = getDateRange('2023-11-25', 4);
   const response = await exports.getCollaborationMetricBaselines(teamId);
 
   return exports.getCollaborationMetrics(teamId, startDate, endDate);

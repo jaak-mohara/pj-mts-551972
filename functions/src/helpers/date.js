@@ -7,7 +7,7 @@ const moment = require('moment');
  * @return {string}
  */
 exports.getWeeksAgoDate = (requestDate = null, weekAgo = 1) => {
-  const date = moment(requestDate || new Date());
+  const date = moment(requestDate);
   const response = date.subtract(weekAgo, 'week');
   return response.format('YYYY-MM-DD');
 };
@@ -30,8 +30,9 @@ exports.getCurrentDate = (requestDate = null) => {
  * @returns {{startDate: string, endDate: string}}
  */
 exports.getDateRange = (endDate = null, weekAgo = 1) => {
-  const lowerLimit = moment(endDate).subtract(weekAgo, 'week');
-  const upperLimit = (endDate && moment(endDate)) || moment();
+  const lowerLimit = moment(endDate)
+    .subtract(weekAgo, 'week');
+  const upperLimit = moment(endDate);
 
   return {
     startDate: lowerLimit.format('YYYY-MM-DD'),
