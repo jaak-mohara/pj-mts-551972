@@ -1,11 +1,12 @@
 const mockGet = jest.fn();
+const mockMomentFormat = jest.fn();
 
 const moment = require('moment');
 
 const { exampleObjectMetadata } = require('firebase-functions-test/lib/providers/storage');
 const { singleTeam, teamList } = require('../mockObjects/teams');
 const { team_period } = require('../mockObjects/codingMetrics');
-const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages } = require('../mockObjects/collaboration');
+const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages, globalCollaborationBaselines } = require('../mockObjects/collaboration');
 
 require('dotenv').config();
 
@@ -20,11 +21,15 @@ const collaborationMetrics = [
   'thoroughly_reviewed_prs',
 ];
 
-const mock = process.env.MOCK_TESTS === 'true';
+const mock = !process.env.MOCK_TESTS || process.env.MOCK_TESTS === 'true';
 if (mock) {
   jest.mock('../../src/utils/fetch', () => ({
     get: mockGet,
   }));
+
+  jest.mock('moment', () => {
+    return () => jest.requireActual('moment')('2023-11-25T00:00:00.000Z');
+  });
 }
 
 
@@ -142,6 +147,42 @@ describe('pluralsight_service', () => {
           expect(metrics[metric].average).toBeDefined();
         });
       });
-    })
+    });
+
+    describe('getCollaborationMetricsBaselines', () => {
+      it('should return a list of the global collaboration metrics to use as a baseline', async () => {
+        mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
+
+        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = await getCollaborationMetricsBaselines(null);
+
+        mock && expect(mockGet).toHaveBeenCalledTimes(1);
+        mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average');
+        expect(metrics).toBeTruthy();
+      });
+
+      it('should return a list of the team collaboration metrics to use as a baseline', async () => {
+        mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
+
+        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = await getCollaborationMetricsBaselines(singleTeam?.id);
+
+        mock && expect(mockGet).toHaveBeenCalledTimes(1);
+        mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average&team_id=95611');
+        expect(metrics).toBeTruthy();
+      });
+
+      it('should adjust the collaboration baselines to account for the number of weeks in the date range', async () => {
+        mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
+
+        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = (await getCollaborationMetricsBaselines())
+          .changeToWeekly();
+
+        mock && expect(mockGet).toHaveBeenCalledTimes(1);
+        mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average');
+        expect(metrics).toBeTruthy();
+      });
+    });
   });
 });

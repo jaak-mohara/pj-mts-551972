@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { get } = require("../../utils/fetch");
 
 /**
@@ -11,9 +13,10 @@ const { get } = require("../../utils/fetch");
  */
 exports.getCollaborationMetricsBaselines = async (
   teamId = null,
-  startDate = null,
-  endDate = null
 ) => {
+  const endDate = moment().format('YYYY-MM-DD');
+  const startDate = moment().subtract(4, 'weeks').format('YYYY-MM-DD');
+
   return exports.getCollaborationMetrics(teamId, startDate, endDate);
 };
 
@@ -36,5 +39,20 @@ exports.getCollaborationMetrics = (
 
   const dateRange = `[${startDate}:${endDate}]`;
 
-  return get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
+  const response = get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
+
+  return response;
 }
+
+/**
+ * Divides the collaboration metrics by the number of weeks in the 
+ * period.
+ * 
+ * @param {object} metrics 
+ * @param {string} startDate 
+ * @param {string} endDate 
+ */
+exports.changeToWeekly = (metrics, startDate, endDate) => {
+  const weeks = moment(endDate).diff(startDate, 'weeks');
+
+};
