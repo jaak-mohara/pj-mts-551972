@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const { get } = require("../../utils/fetch");
+const { divideNumbersInObject } = require("../../utils/objects");
 
 /**
  * Returns a list of the collaboration metrics to use as a baseline.
@@ -11,7 +12,7 @@ const { get } = require("../../utils/fetch");
  * 
  * @returns { Promise<CollaborationMetrics> }
  */
-exports.getCollaborationMetricsBaselines = async (
+exports.getCollaborationMetricBaselines = async (
   teamId = null,
 ) => {
   const endDate = moment().format('YYYY-MM-DD');
@@ -21,6 +22,25 @@ exports.getCollaborationMetricsBaselines = async (
 };
 
 /**
+ * Returns a list of the collaboration metrics to use adjusted to a week.
+ * 
+ * @param {number} teamId 
+ * @param {string} startDate 
+ * @param {string} endDate
+ * 
+ * @returns { Promise<CollaborationMetrics> }
+ */
+exports.getWeeklyCollaborationMetricBaselines = async (
+  teamId = null,
+) => {
+  const response = await exports.getCollaborationMetricBaselines(teamId);
+
+  return exports.getCollaborationMetrics(teamId, startDate, endDate);
+};
+
+/**
+ * Gets the collaboration averages for the given team and date range. If 
+ * no team is specified, the global averages are returned.
  * 
  * @returns { Promise<CollaborationMetrics> }
  */
@@ -39,9 +59,7 @@ exports.getCollaborationMetrics = (
 
   const dateRange = `[${startDate}:${endDate}]`;
 
-  const response = get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
-
-  return response;
+  return get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
 }
 
 /**
@@ -50,9 +68,13 @@ exports.getCollaborationMetrics = (
  * 
  * @param {object} metrics 
  * @param {string} startDate 
- * @param {string} endDate 
+ * @param {string} endDate
+ * 
+ * @return {object}
  */
 exports.changeToWeekly = (metrics, startDate, endDate) => {
   const weeks = moment(endDate).diff(startDate, 'weeks');
 
+  return divideNumbersInObject(metrics, weeks);
 };
+

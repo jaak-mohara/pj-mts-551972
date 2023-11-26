@@ -29,4 +29,37 @@ describe('date_helper', () => {
     });
 
   });
+
+  describe('getDatePeriod', () => {
+    it('should return a truty value', () => {
+      const { getDateRange } = require('../../src/helpers/date');
+      const response = getDateRange('2020-01-01', 4);
+
+      expect(response).toBeDefined();
+    });
+
+    it('should return a startDate and endDate', () => {
+      const { getDateRange } = require('../../src/helpers/date');
+      const response = getDateRange('2020-01-01', 4);
+
+      expect(response.startDate).toBeDefined();
+      expect(response.endDate).toBeDefined();
+    });
+
+    it('should return a startDate and endDate in the correct format', () => {
+      const { getDateRange } = require('../../src/helpers/date');
+      const response = getDateRange('2020-01-01', 4);
+
+      expect(response.startDate).toMatch(/\d{4}-\d{2}-\d{2}/);
+      expect(response.endDate).toMatch(/\d{4}-\d{2}-\d{2}/);
+    });
+
+    it('should return a startDate and endDate for the correct period', () => {
+      const { getDateRange } = require('../../src/helpers/date');
+      const response = getDateRange('2020-01-01', 4);
+
+      expect(response.startDate).toBe('2019-12-04');
+      expect(response.endDate).toBe('2020-01-01');
+    });
+  })
 });

@@ -149,12 +149,12 @@ describe('pluralsight_service', () => {
       });
     });
 
-    describe('getCollaborationMetricsBaselines', () => {
+    describe('getCollaborationMetricBaselines', () => {
       it('should return a list of the global collaboration metrics to use as a baseline', async () => {
         mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
 
-        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
-        const metrics = await getCollaborationMetricsBaselines(null);
+        const { getCollaborationMetricBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = await getCollaborationMetricBaselines(null);
 
         mock && expect(mockGet).toHaveBeenCalledTimes(1);
         mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average');
@@ -164,8 +164,8 @@ describe('pluralsight_service', () => {
       it('should return a list of the team collaboration metrics to use as a baseline', async () => {
         mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
 
-        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
-        const metrics = await getCollaborationMetricsBaselines(singleTeam?.id);
+        const { getCollaborationMetricBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = await getCollaborationMetricBaselines(singleTeam?.id);
 
         mock && expect(mockGet).toHaveBeenCalledTimes(1);
         mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average&team_id=95611');
@@ -175,8 +175,8 @@ describe('pluralsight_service', () => {
       it('should adjust the collaboration baselines to account for the number of weeks in the date range', async () => {
         mock && mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
 
-        const { getCollaborationMetricsBaselines } = require('../../src/services/pluralsight/collaborationService');
-        const metrics = (await getCollaborationMetricsBaselines())
+        const { getCollaborationMetricBaselines } = require('../../src/services/pluralsight/collaborationService');
+        const metrics = (await getCollaborationMetricBaselines())
           .changeToWeekly();
 
         mock && expect(mockGet).toHaveBeenCalledTimes(1);
