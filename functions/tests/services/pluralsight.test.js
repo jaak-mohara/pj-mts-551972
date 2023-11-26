@@ -5,12 +5,23 @@ const moment = require('moment');
 const { exampleObjectMetadata } = require('firebase-functions-test/lib/providers/storage');
 const { singleTeam, teamList } = require('../mockObjects/teams');
 const { team_period } = require('../mockObjects/codingMetrics');
-const { collaborationAverages } = require('../mockObjects/collaboration');
+const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages } = require('../mockObjects/collaboration');
 
 require('dotenv').config();
 
-let mock = false;
-if (process.env.MOCK_TESTS === 'true') {
+const collaborationMetrics = [
+  'reaction_time',
+  'responsiveness',
+  'time_to_merge',
+  'time_to_first_comment',
+  'rework_time',
+  'iterated_prs',
+  'unreviewed_prs',
+  'thoroughly_reviewed_prs',
+];
+
+const mock = process.env.MOCK_TESTS === 'true';
+if (mock) {
   jest.mock('../../src/utils/fetch', () => ({
     get: mockGet,
   }));
@@ -100,7 +111,7 @@ describe('pluralsight_service', () => {
       });
 
       it('should return a truthy value', async () => {
-        mock && mockGet.mockResolvedValueOnce(collaborationAverages);
+        mock && mockGet.mockResolvedValueOnce(globalCollaborationAverages);
         const { getCollaborationMetrics } = require('../../src/services/pluralsight/collaborationService');
         const metrics = await getCollaborationMetrics(
           null,
@@ -108,17 +119,28 @@ describe('pluralsight_service', () => {
           '2023-11-25'
         );
 
+        mock && expect(mockGet).toHaveBeenCalledTimes(1);
+        mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-11-18:2023-11-25]&fields=average');
         expect(metrics).toBeTruthy();
       });
 
       it('should return a list of collaboration metrics', async () => {
-        mock && mockGet.mockResolvedValueOnce(collaborationAverages);
+        mock && mockGet.mockResolvedValueOnce(teamCollaborationAverages);
         const { getCollaborationMetrics } = require('../../src/services/pluralsight/collaborationService');
-        const metrics = await getCollaborationMetrics(singleTeam.id);
+        const metrics = await getCollaborationMetrics(
+          singleTeam.id,
+          '2023-11-18',
+          '2023-11-25'
+        );
 
-        expect(metrics.results.length).toBeGreaterThan(0);
-        expect(metrics.count).toBeDefined();
-        expect(metrics.results).toBeDefined();
+        mock && expect(mockGet).toHaveBeenCalledTimes(1);
+        mock && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-11-18:2023-11-25]&fields=average&team_id=95611');
+
+        expect(metrics.pr_count).toBeDefined();
+        collaborationMetrics.forEach(metric => {
+          expect(metrics[metric]).toBeDefined();
+          expect(metrics[metric].average).toBeDefined();
+        });
       });
     })
   });
