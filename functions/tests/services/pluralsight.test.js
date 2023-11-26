@@ -1,5 +1,7 @@
 const mockGet = jest.fn();
 
+const moment = require('moment');
+
 const { exampleObjectMetadata } = require('firebase-functions-test/lib/providers/storage');
 const { singleTeam, teamList } = require('../mockObjects/teams');
 const { team_period } = require('../mockObjects/codingMetrics');
@@ -41,10 +43,14 @@ describe('pluralsight_service', () => {
     it('should return a list of coding metrics', async () => {
       mockGet.mockResolvedValueOnce(team_period);
       const { getWeeklyMetrics } = require('../../src/services/pluralsight/codingMetricsService');
-      const metrics = await getWeeklyMetrics(singleTeam.id);
+      const metrics = await getWeeklyMetrics(
+        singleTeam.id,
+        '2023-11-18',
+        '2023-11-25'
+      );
 
       expect(mockGet).toHaveBeenCalledTimes(1);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&team_id=103984&include_nested_teams=true&resolution=period');
+      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&team_id=103984&include_nested_teams=true&resolution=period');
       expect(metrics.results.length).toBeGreaterThan(0);
       expect(metrics.count).toBeDefined();
       expect(metrics.results).toBeDefined();
@@ -54,9 +60,11 @@ describe('pluralsight_service', () => {
       mockGet.mockResolvedValueOnce(team_period);
       const { getCodingMetricsBaselines } = require('../../src/services/pluralsight/codingMetricsService');
       const metrics = await getCodingMetricsBaselines(singleTeam.id);
+      const startDate = moment().subtract(4, 'weeks').format('YYYY-MM-DD');
+      const endDate = moment().format('YYYY-MM-DD');
 
       expect(mockGet).toHaveBeenCalledTimes(1);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-10-28&endDate=2023-11-25&team_id=103984&include_nested_teams=true&resolution=period');
+      expect(mockGet).toHaveBeenCalledWith(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=${startDate}&end_date=${endDate}&team_id=103984&include_nested_teams=true&resolution=period`);
       expect(metrics.count).toBeDefined();
       expect(metrics.results).toBeDefined();
       expect(metrics.results.length).toBe(1);

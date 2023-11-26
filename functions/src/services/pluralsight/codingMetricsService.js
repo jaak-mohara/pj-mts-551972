@@ -28,15 +28,17 @@ exports.getCodingMetricsBaselines = (teamId, weeksAgo = 4) => {
   return exports.getCodingMetricsForPeriod(
     teamId,
     `start_date=${getWeeksAgoDate(null, weeksAgo)}`,
-    `&endDate=${getCurrentDate()}`
+    `&end_date=${getCurrentDate()}`
   );
 };
 
 /**
  * Fetches the summary of the coding metrics for the team as a single list for the period.
+ * 
  * @param {string} teamId 
  * @param {string} startDate 
  * @param {string} endDate 
+ * 
  * @return {Promise<[{count: number, results: object[]}]>}
  */
 exports.getCodingMetricsForPeriod = (teamId, startDate, endDate) => {
