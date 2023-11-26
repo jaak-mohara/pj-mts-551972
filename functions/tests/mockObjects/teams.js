@@ -1014,4 +1014,5 @@ exports.teamList = {
   ]
 };
 
-exports.singleTeam = exports.teamList.results[0];
+exports.singleTeam = exports.teamList.results
+  .find(({ id }) => id === 95611);
