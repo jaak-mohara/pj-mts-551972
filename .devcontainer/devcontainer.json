@@ -31,7 +31,8 @@
 				"rvest.vs-code-prettier-eslint",
 				"dbaeumer.vscode-eslint",
 				"Orta.vscode-jest",
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"mhutchie.git-graph"
 			]
 		}
 	},
