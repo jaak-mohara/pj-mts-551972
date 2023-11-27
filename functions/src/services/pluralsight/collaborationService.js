@@ -18,10 +18,7 @@ exports.getCollaborationMetricBaselines = async (
   startDate = null,
   endDate = null,
 ) => {
-  let period = null;
-  if (!startDate || !endDate) {
-    period = getDateRange(endDate || moment().format('YYYY-MM-DD'), 4);
-  }
+  let period = getDateRange(endDate, null, 4)
 
   return exports.getCollaborationMetrics(
     teamId,
@@ -55,19 +52,17 @@ exports.getWeeklyCollaborationMetricBaselines = async (
  * @returns { Promise<CollaborationMetrics> }
  */
 exports.getCollaborationMetrics = (
-  teamId,
-  startDate,
-  endDate
+  teamId = null,
+  startDate = null,
+  endDate = null
 ) => {
-  const team = teamId !== null
+  const team = teamId
     ? `&team_id=${teamId}`
     : '';
 
-  if (!startDate || !endDate) {
-    throw new Error('Start and end dates are required');
-  }
+  let period = getDateRange(endDate, startDate);
 
-  const dateRange = `[${startDate}:${endDate}]`;
+  const dateRange = `[${period.startDate}:${period.endDate}]`;
 
   return get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
 }

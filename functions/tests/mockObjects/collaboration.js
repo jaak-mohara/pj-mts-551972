@@ -25,7 +25,6 @@ exports.teamCollaborationAverages = {
   },
   pr_count: 85,
 };
-
 exports.globalCollaborationAverages = {
   reaction_time: {
     average: 4.27,
@@ -53,7 +52,6 @@ exports.globalCollaborationAverages = {
   },
   pr_count: 156,
 };
-
 exports.globalCollaborationBaselines = {
   reaction_time: {
     average: 9.51,
@@ -81,7 +79,6 @@ exports.globalCollaborationBaselines = {
   },
   pr_count: 544,
 };
-
 exports.adjustedGlobalCollaborationBaselines = {
   reaction_time: {
     average: 9.51 / 4,
@@ -109,7 +106,6 @@ exports.adjustedGlobalCollaborationBaselines = {
   },
   pr_count: 544 / 4,
 };
-
 exports.teamCollaborationBaselines = {
   reaction_time: {
     average: 8.65,

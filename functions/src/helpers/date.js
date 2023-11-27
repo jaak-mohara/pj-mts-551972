@@ -29,10 +29,18 @@ exports.getCurrentDate = (requestDate = null) => {
  * @param {number} weekAgo 
  * @returns {{startDate: string, endDate: string}}
  */
-exports.getDateRange = (endDate = null, weekAgo = 1) => {
-  const lowerLimit = moment(endDate)
-    .subtract(weekAgo, 'week');
-  const upperLimit = moment(endDate);
+exports.getDateRange = (endDate = null, startDate = null, weeksAgo = 1) => {
+  const upperLimit = (endDate
+    ? moment(endDate)
+    : moment()
+  );
+
+  let lowerLimit = null;
+  if (startDate) {
+    lowerLimit = moment(startDate);
+  } else {
+    lowerLimit = moment(upperLimit).subtract(weeksAgo, 'week');
+  }
 
   return {
     startDate: lowerLimit.format('YYYY-MM-DD'),

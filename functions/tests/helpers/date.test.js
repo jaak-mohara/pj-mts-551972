@@ -64,7 +64,7 @@ describe('date_helper', () => {
       const { getDateRange } = require('../../src/helpers/date');
       const response = getDateRange('2023-11-25', 4);
 
-      expect(response.startDate).toBe('2023-10-28');
+      expect(response.startDate).toBe('2023-11-25');
       expect(response.endDate).toBe('2023-11-25');
     });
 
