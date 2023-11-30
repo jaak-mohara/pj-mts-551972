@@ -1,9 +1,7 @@
-jest.mock('moment', () => {
-  return (suppliedDate = null) => {
-    const dateToUse = '2023-11-25';
-    if (suppliedDate) {
-      dateToUse = suppliedDate;
-    }
-    jest.requireActual('moment')(`${}T00:00:00.000Z`);
-  };
-});
+require('dotenv').config();
+
+describe('ENV', () => {
+  it('should have a variable for MOCK_TESTS', () => {
+    expect(process.env.MOCK_TESTS).toBeDefined();
+  });
+})

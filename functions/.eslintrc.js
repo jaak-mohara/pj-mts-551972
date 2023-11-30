@@ -6,7 +6,6 @@ module.exports = {
   parserOptions: {
     "ecmaVersion": 2018,
   },
-  indent: ["error", 2],
   extends: [
     "eslint:recommended",
     "google",
@@ -17,6 +16,7 @@ module.exports = {
     "tests/**/*",
   ],
   rules: {
+    "indent": ["error", 2],
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
     "quotes": ["error", "single", { "allowTemplateLiterals": true }],

@@ -21,7 +21,7 @@
     },
     {
       "type": "node",
-      "name": "Run Collaboration Service Tests",
+      "name": "Run Specific Test Group",
       "request": "launch",
       "args": [
         "--runInBand",
@@ -36,5 +36,13 @@
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     }
-  ]
+  ],
+  "inputs": [
+    {
+        "id": "pickGroup",
+        "description": "Please enter the group of tests to run",
+        "default": "app.js",
+        "type": "promptString"
+    }
+]
 }

@@ -5,11 +5,11 @@ jest.mock('node-fetch', () => mockFetch);
 describe('fetch_util', () => {
   describe('get', () => {
     beforeAll(() => {
-      this.get = require('../../src/utils/fetch').get;
+      this.get = require('../../../src/utils/fetch').get;
       jest.resetModules();
       jest.resetAllMocks();
 
-      const { get } = require('../../src/utils/fetch');
+      const { get } = require('../../../src/utils/fetch');
 
       get('https://example.com');
     });

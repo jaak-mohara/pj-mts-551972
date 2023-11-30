@@ -1,4 +1,4 @@
-const { divideNumbersInObject } = require('../../src/utils/objects');
+const { divideNumbersInObject } = require('../../../src/utils/objects');
 
 describe('objects_util', () => {
   describe('divideNumbersInObject', () => {

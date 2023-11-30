@@ -2,38 +2,37 @@ const moment = require('moment');
 
 /**
  * Get the date from a week ago in the format yyyy-mm-dd.
- * @param {Date} date
+ * @param {string} requestDate
  * @param {number} weekAgo
  * @return {string}
  */
 exports.getWeeksAgoDate = (requestDate = null, weekAgo = 1) => {
-  const date = moment(requestDate);
+  const date = requestDate ? moment(requestDate) : moment();
   const response = date.subtract(weekAgo, 'week');
   return response.format('YYYY-MM-DD');
 };
 
 /**
  * Get the current date in the correct format to use in the requests.
- * @param {Date} requestDate 
+ * @param {string} requestDate
  * @return {string}
  */
 exports.getCurrentDate = (requestDate = null) => {
-  const date = moment(requestDate || new Date());
+  const date = requestDate ? moment(requestDate) : moment();
   return date.format('YYYY-MM-DD');
 };
 
 /**
  * Gets the date range for the request.
- * 
- * @param {string} requestDate 
- * @param {number} weekAgo 
- * @returns {{startDate: string, endDate: string}}
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} weeksAgo
+ *
+ * @return {{startDate: string, endDate: string}}
  */
-exports.getDateRange = (endDate = null, startDate = null, weeksAgo = 1) => {
-  const upperLimit = (endDate
-    ? moment(endDate)
-    : moment()
-  );
+exports.getDateRange = (startDate = null, endDate, weeksAgo = 1) => {
+  const upperLimit = endDate ? moment(endDate) : moment();
 
   let lowerLimit = null;
   if (startDate) {

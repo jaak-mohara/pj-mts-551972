@@ -2,7 +2,7 @@
 describe('basic_handler', () => {
   // Test 200 response from the basicHandler.
   test('should return a 200 response', () => {
-    const { handler } = require('../../src/handlers/basic');
+    const { handler } = require('../../../src/handlers/basic');
 
     // Create a mock response object.
     const res = {
