@@ -18,10 +18,14 @@ describe('codingMetrics', () => {
     jest.clearAllMocks();
   });
 
-  it('should return an average of the coding metrics for the past 4 weeks', async () => {
+  it('should return a list of coding metrics for he given period', async () => {
     mockGet.mockResolvedValueOnce(team_period);
-    const { getCodingMetricsBaselines } = require('../../../src/repositories/pluralsightRepository');
-    const metrics = await getCodingMetricsBaselines(singleTeam.id);
+    const { getCodingMetricsForPeriod } = require('../../../src/services/pluralsightService');
+    const metrics = await getCodingMetricsForPeriod(
+      '2023-10-28',
+      '2023-11-25',
+      singleTeam.id
+    );
 
     expect(mockGet).toHaveBeenCalledTimes(1);
     expect(mockGet).toHaveBeenCalledWith(`https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-10-28&end_date=2023-11-25&team_id=${singleTeam?.id}&include_nested_teams=true&resolution=period`);

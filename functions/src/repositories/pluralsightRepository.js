@@ -6,6 +6,7 @@ const {
   getCurrentDate,
 } = require('../helpers/date');
 const pluralsightService = require('../services/pluralsightService');
+const { ValidationException } = require('../exceptions/ValidationException');
 
 /**
  * Divides the collaboration metrics by the number of weeks in the
@@ -30,12 +31,62 @@ exports.changeToWeekly = (metrics, startDate, endDate) => {
  * @param {number}  weeksAgo
  * @return {Promise<[{count: number, results: object[]}]>}
  */
-exports.getCodingMetricsBaselines = (teamId, weeksAgo = 4) => {
-  return pluralsightService.getCodingMetricsForPeriod(
+exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
+  const response = await pluralsightService.getCodingMetricsForPeriod(
     getWeeksAgoDate(null, weeksAgo),
     getCurrentDate(),
     teamId,
   );
+
+  if (response && response.results) {
+    return response.results[0];
+  }
+
+  return {
+    active_days: 0,
+    commit_count: 0,
+    total_impact: 0,
+    total_efficiency: 0,
+  };
+};
+
+/**
+ * Returns an averaged list of coding metrics for the given team over the
+ * given period.
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} teamId
+ *
+ * @return {Promise<{
+ *   active_days: number,
+ *   commit_count: number,
+ *   total_impact: number,
+ *   total_efficiency: number,
+ * }>}
+ */
+exports.getCodingMetrics = async (startDate, endDate, teamId = null) => {
+  if (!endDate) {
+    throw new ValidationException('End date is required');
+  }
+
+  const response = await pluralsightService
+    .getCodingMetricsForPeriod(
+      startDate || getWeeksAgoDate(endDate, 1),
+      endDate,
+      teamId,
+    );
+
+  if (response && response.results) {
+    return response.results[0];
+  }
+
+  return {
+    active_days: 0,
+    commit_count: 0,
+    total_impact: 0,
+    total_efficiency: 0,
+  };
 };
 
 /**
@@ -107,9 +158,9 @@ exports.compareCodingMetrics = (currentMetrics, targetMetrics) =>
     .map((key) => {
       const current = currentMetrics[key];
       const target = targetMetrics[key];
-      const change = current - target;
+      const ratio = target ? current / target : 0;
 
-      return { [key]: { current, target, change } };
+      return { [key]: { current, target, ratio } };
     })
     /**
      * Reduce the array of comparison objects into a single object.
