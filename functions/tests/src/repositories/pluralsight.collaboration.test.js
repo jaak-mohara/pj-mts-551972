@@ -1,7 +1,7 @@
 const mockGet = jest.fn();
 
 const { getDateRange } = require('../../../src/helpers/date');
-const { globalCollaborationBaselines, adjustedGlobalCollaborationBaselines } = require('../../mockObjects/collaboration');
+const { globalCollaborationBaselines, adjustedGlobalCollaborationBaselines, teamCollaborationAverages } = require('../../mockObjects/collaboration');
 const { singleTeam } = require('../../mockObjects/teams');
 
 jest.mock('../../../src/utils/fetch', () => ({
@@ -35,7 +35,7 @@ describe('collaboration', () => {
     });
 
     it('should return a list of the team collaboration metrics to use as a baseline', async () => {
-      mockGet.mockResolvedValueOnce(globalCollaborationBaselines);
+      mockGet.mockResolvedValueOnce(teamCollaborationAverages);
 
       const { getCollaborationMetricBaselines } = require('../../../src/repositories/pluralsightRepository');
       const metrics = await getCollaborationMetricBaselines(singleTeam?.id);
