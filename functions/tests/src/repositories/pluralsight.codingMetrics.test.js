@@ -1,12 +1,19 @@
 const mockGet = jest.fn();
 
+require('dotenv').config();
+
 const { getDateRange } = require('../../../src/helpers/date');
 const { no_team_period, team_period, compared_period_metrics } = require('../../mockObjects/codingMetrics')
 const { singleTeam } = require('../../mockObjects/teams');
 
-jest.mock('../../../src/utils/fetch', () => ({
+const mockTests = process.env.MOCK_TESTS === 'true';
+mockTests && jest.mock('../../../src/utils/fetch', () => ({
   get: mockGet,
 }));
+
+if (mockTests) {
+  process.env.PLURALSIGHT_API_KEY = undefined;
+}
 
 jest.mock('moment', () => {
   const moment = jest.requireActual('moment');
@@ -26,14 +33,14 @@ describe('codingMetrics', () => {
     it('should return a list of no-team coding metrics', async () => {
       mockGet.mockResolvedValueOnce(no_team_period);
 
-      const { getCodingMetrics, getCodingMetricsBaselines, compareCodingMetrics } = require('../../../src/repositories/pluralsightRepository');
+      const { getCodingMetrics, getCodingMetricsBaselines, compareMetrics } = require('../../../src/repositories/pluralsightRepository');
       const metrics = await getCodingMetrics(
         '2023-11-18',
         '2023-11-25',
       );
 
-      expect(mockGet).toHaveBeenCalledTimes(1);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
       expect(metrics).toBeTruthy();
     });
 
@@ -52,7 +59,7 @@ describe('codingMetrics', () => {
         expect(error.name).toEqual('ValidationException');
       }
 
-      expect(mockGet).toHaveBeenCalledTimes(0);
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(0);
     });
 
     it('should default to a week before the endDate if no startDate was given', async () => {
@@ -64,8 +71,8 @@ describe('codingMetrics', () => {
         '2023-11-25',
       );
 
-      expect(mockGet).toHaveBeenCalledTimes(1);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
       expect(metrics).toBeTruthy();
     });
 
@@ -78,8 +85,8 @@ describe('codingMetrics', () => {
         '2023-11-25',
       );
 
-      expect(mockGet).toHaveBeenCalledTimes(1);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2000-01-01&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2000-01-01&end_date=2023-11-25&include_nested_teams=true&resolution=period');
       expect(metrics).toBeTruthy();
     });
 
@@ -91,7 +98,7 @@ describe('codingMetrics', () => {
       const {
         getCodingMetrics,
         getCodingMetricsBaselines,
-        compareCodingMetrics
+        compareMetrics
       } = require('../../../src/repositories/pluralsightRepository');
 
       const teamMetrics = await getCodingMetrics(
@@ -101,10 +108,10 @@ describe('codingMetrics', () => {
 
       const baselineMetrics = await getCodingMetricsBaselines();
 
-      const comparedMetrics = compareCodingMetrics(teamMetrics, baselineMetrics);
+      const comparedMetrics = compareMetrics(teamMetrics, baselineMetrics);
 
-      expect(mockGet).toHaveBeenCalledTimes(2);
-      expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(2);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
 
       expect(teamMetrics).toBeTruthy();
       expect(teamMetrics).toHaveProperty('active_days');
@@ -121,8 +128,24 @@ describe('codingMetrics', () => {
       expect(comparedMetrics).toEqual(compared_period_metrics);
     });
 
+    it('should return a list of compared coding metrics', async () => {
+      mockGet
+        .mockResolvedValueOnce(team_period)
+        .mockResolvedValueOnce(no_team_period);
 
+      const {
+        getComparedCodingMetrics
+      } = require('../../../src/repositories/pluralsightRepository');
 
+      const comparedCodingMetrics = await getComparedCodingMetrics(
+        '2023-11-18',
+        '2023-11-25',
+      );
 
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(2);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+
+      expect(comparedCodingMetrics).toEqual(compared_period_metrics);
+    })
   });
 })

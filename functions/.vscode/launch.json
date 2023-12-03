@@ -6,10 +6,23 @@
   "configurations": [
     {
       "type": "node",
+      "request": "launch",
+      "name": "Serve Program",
+      "runtimeExecutable": "npm",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "runtimeArgs": [
+          "run-script",
+          "serve"
+      ]
+    },
+    {
+      "type": "node",
       "name": "Run Tests",
       "request": "launch",
       "args": [
         "--runInBand",
+        "--detectOpenHandles"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
@@ -26,7 +39,8 @@
       "args": [
         "--runInBand",
         "-t",
-        "collaboration"
+        "collaboration",
+        "--detectOpenHandles"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

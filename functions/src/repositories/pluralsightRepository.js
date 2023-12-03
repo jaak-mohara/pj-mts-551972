@@ -150,7 +150,7 @@ exports.getWeeklyCollaborationMetricBaselines = async (
  *
  * @return { CodingMetrics }
  */
-exports.compareCodingMetrics = (currentMetrics, targetMetrics) =>
+exports.compareMetrics = (currentMetrics, targetMetrics) =>
   (Object.keys(currentMetrics))
     /**
      * Map the keys of the coding metrics to an array of comparison objects.
@@ -174,3 +174,25 @@ exports.compareCodingMetrics = (currentMetrics, targetMetrics) =>
         [key]: cur[key],
       };
     }, {});
+
+/**
+ * Compares the team's coding metrics with baselines over the last 4 weeks.
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} teamId
+ * @return {Promise<{ComparedCodingMetrics}>}
+ */
+exports.getComparedCodingMetrics = async (startDate, endDate, teamId) => {
+  const currentMetrics = await exports.getCodingMetrics(
+    startDate,
+    endDate,
+    teamId,
+  );
+
+  const targetMetrics = await exports.getCodingMetricsBaselines(
+    teamId,
+  );
+
+  return exports.compareMetrics(currentMetrics, targetMetrics);
+};

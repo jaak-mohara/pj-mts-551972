@@ -18,7 +18,7 @@ describe('fetch_util', () => {
       expect(mockFetch).toHaveBeenCalled();
     });
 
-    it('should include headers fort he Content-Type and Authorization', () => {
+    it('should include headers for the Content-Type and Authorization', () => {
       expect(mockFetch).toHaveBeenCalledWith('https://example.com', {
         headers: {
           'Content-Type': 'application/json',
