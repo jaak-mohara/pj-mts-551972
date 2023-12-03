@@ -2,9 +2,9 @@ const { onRequest } = require('firebase-functions/v2/https');
 const logger = require('firebase-functions/logger');
 
 const {
-  getComparedCodingMetrics,
+  getComparedCodingMetrics, getComparedCollaborationMetrics,
 } = require('../repositories/pluralsightRepository');
-const { getCurrentDate } = require('../helpers/date');
+const { getCurrentDate, getWeeksAgoDate } = require('../helpers/date');
 
 exports.codeMetrics = onRequest(async (request, response) => {
   logger.info('codeMetrics', request.query);
@@ -31,7 +31,7 @@ exports.collaborationMetrics = onRequest(async (request, response) => {
 
   const {
     endDate = getCurrentDate(),
-    startDate = null,
+    startDate = getWeeksAgoDate(getCurrentDate(), 1),
     teamId = null,
   } = request.query;
 
