@@ -30,10 +30,10 @@ exports.getCollaborationMetrics = (
   endDate,
   teamId = null,
 ) => {
-  teamId = teamId ? `&team_id=${teamId}` : '';
+  const team = teamId ? `&team_id=${teamId}` : '';
   const dateRange = `[${startDate}:${endDate}]`;
 
-  return get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${teamId}`);
+  return get(`https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=${dateRange}&fields=average${team}`);
 };
 
 /**

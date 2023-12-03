@@ -3,7 +3,7 @@ const mockMoment = jest.fn();
 
 const { getDateRange } = require('../../../src/helpers/date');
 const { team_period } = require('../../mockObjects/codingMetrics');
-const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages } = require('../../mockObjects/collaboration');
+const { collaborationAverages, globalCollaborationAverages, teamCollaborationAverages, noTeamCollaborationAverages } = require('../../mockObjects/collaboration');
 const { singleTeam } = require('../../mockObjects/teams');
 
 jest.mock('../../../src/utils/fetch', () => ({
@@ -64,7 +64,8 @@ describe('collaborationService', () => {
     });
 
     it('should return a list of collaboration metrics', async () => {
-      mockGet.mockResolvedValueOnce(teamCollaborationAverages);
+      mockGet
+        .mockResolvedValueOnce(noTeamCollaborationAverages);
       const { getCollaborationMetrics } = require('../../../src/services/pluralsightService');
       const metrics = await getCollaborationMetrics(
         '2023-11-18',

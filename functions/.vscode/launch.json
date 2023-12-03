@@ -39,7 +39,7 @@
       "args": [
         "--runInBand",
         "-t",
-        "collaboration",
+        "${input:pickGroup}",
         "--detectOpenHandles"
       ],
       "cwd": "${workspaceFolder}",

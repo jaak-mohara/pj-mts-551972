@@ -25,3 +25,23 @@ exports.codeMetrics = onRequest(async (request, response) => {
     .status(200)
     .send(JSON.stringify(metrics));
 });
+
+exports.collaborationMetrics = onRequest(async (request, response) => {
+  logger.info('collaborationMetrics', request.query);
+
+  const {
+    endDate = getCurrentDate(),
+    startDate = null,
+    teamId = null,
+  } = request.query;
+
+  const metrics = await getComparedCollaborationMetrics(
+    startDate,
+    endDate,
+    teamId,
+  );
+
+  response
+    .status(200)
+    .send(JSON.stringify(metrics));
+});

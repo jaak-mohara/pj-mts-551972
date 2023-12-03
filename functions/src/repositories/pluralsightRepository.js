@@ -21,7 +21,19 @@ const { ValidationException } = require('../exceptions/ValidationException');
 exports.changeToWeekly = (metrics, startDate, endDate) => {
   const weeks = moment(endDate).diff(startDate, 'weeks');
 
-  return divideNumbersInObject(metrics, weeks);
+  return {
+    ...metrics,
+    iterated_prs: {
+      average: metrics.iterated_prs.average / weeks,
+    },
+    unreviewed_prs: {
+      average: metrics.unreviewed_prs.average / weeks,
+    },
+    thoroughly_reviewed_prs: {
+      average: metrics.thoroughly_reviewed_prs.average / weeks,
+    },
+    pr_count: metrics.pr_count / weeks,
+  };
 };
 
 /**
@@ -110,29 +122,29 @@ exports.getCollaborationMetricBaselines = async (
 };
 
 /**
- * Returns a list of the collaboration metrics to use adjusted to a week.
+ * Returns a list of the collaboration metrics.
  *
+ * @param {string} startDate
+ * @param {string} endDate
  * @param {number} teamId
- * @param {number} weeksAgo
  *
  * @return { Promise<CollaborationMetrics> }
  */
-exports.getWeeklyCollaborationMetricBaselines = async (
+exports.getCollaborationMetrics = (
+  startDate,
+  endDate,
   teamId = null,
-  weeksAgo = 4,
 ) => {
-  const metrics = exports.getCollaborationMetricBaselines(
-    teamId,
-  );
+  if (!endDate) {
+    throw new ValidationException('End date is required');
+  }
 
-  const weekAdjustedMetrics = exports
-    .changeToWeekly(
-      metrics,
-      getWeeksAgoDate(null, weeksAgo),
-      getCurrentDate(),
+  return pluralsightService
+    .getCollaborationMetrics(
+      startDate || getWeeksAgoDate(endDate, 1),
+      endDate,
+      teamId,
     );
-
-  return weekAdjustedMetrics;
 };
 
 /**
@@ -158,7 +170,7 @@ exports.compareMetrics = (currentMetrics, targetMetrics) =>
     .map((key) => {
       const current = currentMetrics[key];
       const target = targetMetrics[key];
-      const ratio = target ? current / target : 0;
+      const ratio = target ? (current / target).toFixed(1) : 0;
 
       return { [key]: { current, target, ratio } };
     })
@@ -196,3 +208,51 @@ exports.getComparedCodingMetrics = async (startDate, endDate, teamId) => {
 
   return exports.compareMetrics(currentMetrics, targetMetrics);
 };
+
+/**
+ * Returns a list of the collaboration metrics compared with the baseline.
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} teamId
+ * @return {Promise<CodingMetrics>}
+ */
+exports.getComparedCollaborationMetrics = async (
+  startDate,
+  endDate,
+  teamId,
+) => {
+  const upperBound = endDate || getCurrentDate();
+
+  const currentMetrics = this
+    .changeToWeekly(await this.getCollaborationMetrics(
+      startDate || getWeeksAgoDate(upperBound, 1),
+      upperBound,
+      teamId,
+    ), startDate, endDate);
+
+  const targetMetrics = this.changeToWeekly(
+    await this.getCollaborationMetricBaselines(
+      teamId,
+    ), getWeeksAgoDate(upperBound, 4), upperBound);
+
+  return this.compareMetrics(
+    this.getParsedCollaborationMetrics(currentMetrics),
+    this.getParsedCollaborationMetrics(targetMetrics),
+  );
+};
+
+/**
+ * Returns the average of the given collaboration metrics on the first level.
+ *
+ * @param {object} metrics
+ * @return {CollaborationMetrics}
+ */
+exports.getParsedCollaborationMetrics = (metrics) => (Object.keys(metrics))
+  .reduce((acc, cur) => {
+    acc[cur] = cur === 'pr_count' ?
+      metrics[cur] :
+      metrics[cur].average;
+
+    return acc;
+  }, {});
