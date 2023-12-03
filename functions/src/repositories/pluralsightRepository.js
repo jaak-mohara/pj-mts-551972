@@ -168,8 +168,8 @@ exports.compareMetrics = (currentMetrics, targetMetrics) =>
      * Map the keys of the coding metrics to an array of comparison objects.
      */
     .map((key) => {
-      const current = currentMetrics[key];
-      const target = targetMetrics[key];
+      const current = currentMetrics[key].toFixed(1);
+      const target = targetMetrics[key].toFixed(1);
       const ratio = target ? (current / target).toFixed(1) : 0;
 
       return { [key]: { current, target, ratio } };

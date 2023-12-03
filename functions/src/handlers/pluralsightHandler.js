@@ -6,8 +6,14 @@ const {
 } = require('../repositories/pluralsightRepository');
 const { getCurrentDate, getWeeksAgoDate } = require('../helpers/date');
 
-exports.codeMetrics = onRequest(async (request, response) => {
+exports.codeMetrics = async (request, response) => {
   logger.info('codeMetrics', request.query);
+
+  if (request.method !== 'GET') {
+    response
+      .status(405)
+      .send('Method Not Allowed');
+  }
 
   const {
     endDate = getCurrentDate(),
@@ -24,10 +30,16 @@ exports.codeMetrics = onRequest(async (request, response) => {
   response
     .status(200)
     .send(JSON.stringify(metrics));
-});
+};
 
-exports.collaborationMetrics = onRequest(async (request, response) => {
+exports.collaborationMetrics = async (request, response) => {
   logger.info('collaborationMetrics', request.query);
+
+  if (request.method !== 'GET') {
+    response
+      .status(405)
+      .send('Method Not Allowed');
+  }
 
   const {
     endDate = getCurrentDate(),
@@ -44,4 +56,30 @@ exports.collaborationMetrics = onRequest(async (request, response) => {
   response
     .status(200)
     .send(JSON.stringify(metrics));
+};
+
+exports.metrics = onRequest(async (request, response) => {
+  logger.info('metrics', request.query);
+
+  if (request.method !== 'GET') {
+    response
+      .status(405)
+      .send('Method Not Allowed');
+  }
+
+  if (request.originalUrl === '/collaboration') {
+    return this.collaborationMetrics(request, response);
+  }
+
+  if (request.originalUrl === '/code') {
+    return this.codeMetrics(request, response);
+  }
+
+  const collaboration = await this.collaborationMetrics(request, response);
+  const code = await this.codeMetrics(request, response);
+
+  return response.status(200).send(JSON.stringify({
+    ...collaboration,
+    ...code,
+  }));
 });

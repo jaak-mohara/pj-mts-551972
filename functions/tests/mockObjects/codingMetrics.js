@@ -58,23 +58,23 @@ exports.team_period = {
 
 exports.compared_period_metrics = {
   active_days: {
-    current: 3.27,
-    target: 3.41,
-    ratio: 0.9589442815249266.toFixed(1),
+    current: "3.3",
+    target: "3.4",
+    ratio: "1.0",
   },
   commit_count: {
-    current: 4.08,
-    target: 3.56,
-    ratio: 1.146067415730337.toFixed(1),
+    current: "4.1",
+    target: "3.6",
+    ratio: "1.1",
   },
   total_impact: {
-    current: 183.11,
-    target: 158.1,
-    ratio: 1.1581910183428212.toFixed(1),
+    current: "183.1",
+    target: "158.1",
+    ratio: "1.2",
   },
   total_efficiency: {
-    current: 73,
-    target: 80.9,
-    ratio: 0.9023485784919654.toFixed(1),
+    current: "73.0",
+    target: "80.9",
+    ratio: "0.9",
   },
 };
