@@ -1,85 +1,38 @@
 const { onRequest } = require('firebase-functions/v2/https');
-const logger = require('firebase-functions/logger');
 
 const {
-  getComparedCodingMetrics, getComparedCollaborationMetrics,
-} = require('../repositories/pluralsightRepository');
-const { getCurrentDate, getWeeksAgoDate } = require('../helpers/date');
-
-exports.codeMetrics = async (request, response) => {
-  logger.info('codeMetrics', request.query);
-
-  if (request.method !== 'GET') {
-    response
-      .status(405)
-      .send('Method Not Allowed');
-  }
-
-  const {
-    endDate = getCurrentDate(),
-    startDate = null,
-    teamId = null,
-  } = request.query;
-
-  const metrics = await getComparedCodingMetrics(
-    startDate,
-    endDate,
-    teamId,
-  );
-
-  response
-    .status(200)
-    .send(JSON.stringify(metrics));
-};
-
-exports.collaborationMetrics = async (request, response) => {
-  logger.info('collaborationMetrics', request.query);
-
-  if (request.method !== 'GET') {
-    response
-      .status(405)
-      .send('Method Not Allowed');
-  }
-
-  const {
-    endDate = getCurrentDate(),
-    startDate = getWeeksAgoDate(getCurrentDate(), 1),
-    teamId = null,
-  } = request.query;
-
-  const metrics = await getComparedCollaborationMetrics(
-    startDate,
-    endDate,
-    teamId,
-  );
-
-  response
-    .status(200)
-    .send(JSON.stringify(metrics));
-};
+  MethodNotAllowedException,
+} = require('../exceptions/MethodNotAllowedException');
+const {
+  getCodeMetrics,
+  getCollaborationMetrics,
+} = require('../controllers/pluralsightControllers');
 
 exports.metrics = onRequest(async (request, response) => {
-  logger.info('metrics', request.query);
+  try {
+    if (request.originalUrl === '/collaboration') {
+      return response
+        .status(200)
+        .send(JSON.stringify(await getCollaborationMetrics(request)));
+    }
 
-  if (request.method !== 'GET') {
-    response
-      .status(405)
-      .send('Method Not Allowed');
+    if (request.originalUrl === '/code') {
+      return response
+        .status(200)
+        .send(JSON.stringify(await getCodeMetrics(request)));
+    }
+
+    return response
+      .status(200)
+      .send(JSON.stringify({
+        ...(await getCollaborationMetrics(request)),
+        ...(await getCodeMetrics(request)),
+      }));
+  } catch (error) {
+    if (error instanceof MethodNotAllowedException) {
+      return response.status(error.status).send(error.message);
+    }
+
+    return response.status(500).send(error.message);
   }
-
-  if (request.originalUrl === '/collaboration') {
-    return this.collaborationMetrics(request, response);
-  }
-
-  if (request.originalUrl === '/code') {
-    return this.codeMetrics(request, response);
-  }
-
-  const collaboration = await this.collaborationMetrics(request, response);
-  const code = await this.codeMetrics(request, response);
-
-  return response.status(200).send(JSON.stringify({
-    ...collaboration,
-    ...code,
-  }));
 });
