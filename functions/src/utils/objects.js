@@ -1,10 +1,10 @@
 /**
  * Divide all numbers in an object by a divisor.
- * 
- * @param {object} obj 
- * @param {number} divisor 
- * 
- * @returns {object}
+ *
+ * @param {object} obj
+ * @param {number} divisor
+ *
+ * @return {object}
  */
 exports.divideNumbersInObject = (obj, divisor) => {
   const newObj = {};

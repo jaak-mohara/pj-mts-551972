@@ -159,10 +159,15 @@ exports.getCollaborationMetrics = (
  *
  * @param { CodingMetrics } currentMetrics
  * @param { CodingMetrics } targetMetrics
+ * @param { string } comparrisonField
  *
  * @return { CodingMetrics }
  */
-exports.compareMetrics = (currentMetrics, targetMetrics) =>
+exports.compareMetrics = (
+  currentMetrics,
+  targetMetrics,
+  comparrisonField = 'baseline',
+) =>
   (Object.keys(currentMetrics))
     /**
      * Map the keys of the coding metrics to an array of comparison objects.
@@ -172,7 +177,7 @@ exports.compareMetrics = (currentMetrics, targetMetrics) =>
       const target = targetMetrics[key].toFixed(1);
       const ratio = target ? (current / target).toFixed(1) : 0;
 
-      return { [key]: { current, target, ratio } };
+      return { [key]: { current, [comparrisonField]: target, ratio } };
     })
     /**
      * Reduce the array of comparison objects into a single object.
