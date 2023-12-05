@@ -7,12 +7,18 @@ const {
   getCodeMetrics,
   getCollaborationMetrics,
 } = require('../controllers/pluralsightControllers');
+const { authenticate } = require('../helpers/auth');
+const { AuthException } = require('../exceptions/AuthException');
 
 /**
  * Handles the metrics section from PluralSight.
  */
 exports.metrics = onRequest(async (request, response) => {
   try {
+    if (!await authenticate(request)) {
+      throw new AuthException();
+    }
+
     if (
       (new RegExp('^/collaboration$|^/collaboration\\??')).test(request.url)
     ) {
@@ -44,7 +50,10 @@ exports.metrics = onRequest(async (request, response) => {
       .status(404)
       .send('Route not found.');
   } catch (error) {
-    if (error instanceof MethodNotAllowedException) {
+    if (
+      error instanceof MethodNotAllowedException ||
+      error instanceof AuthException
+    ) {
       return response.status(error.status).send(error.message);
     }
 

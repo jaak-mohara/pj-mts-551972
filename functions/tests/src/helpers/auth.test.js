@@ -26,7 +26,7 @@ describe('auth', () => {
       const result = await authenticate(request, database);
       expect(result).toBe(false);
     });
-    it('should return false if the api-key is not valid', async () => {
+    it('should return true if the api-key is valid', async () => {
       const request = {
         headers: {
           'x-api-key': 'valid'
