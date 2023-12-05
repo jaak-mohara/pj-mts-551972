@@ -217,47 +217,47 @@ exports.teamAdjustedCollaboration = {
 exports.comparedCollaborationMetrics = {
   reaction_time: {
     current: "5.7",
-    target: "10.3",
+    baseline: "10.3",
     ratio: "0.6",
   },
   responsiveness: {
     current: "1.9",
-    target: "7.1",
+    baseline: "7.1",
     ratio: "0.3",
   },
   time_to_merge: {
     current: "5.5",
-    target: "19.1",
+    baseline: "19.1",
     ratio: "0.3",
   },
   time_to_first_comment: {
     current: "14.2",
-    target: "18.8",
+    baseline: "18.8",
     ratio: "0.8",
   },
   rework_time: {
     current: "9.3",
-    target: "19.9",
+    baseline: "19.9",
     ratio: "0.5",
   },
   iterated_prs: {
     current: "100.0",
-    target: "23.4",
+    baseline: "23.4",
     ratio: "4.3",
   },
   unreviewed_prs: {
     current: "40.0",
-    target: "6.6",
+    baseline: "6.6",
     ratio: "6.1",
   },
   thoroughly_reviewed_prs: {
     current: "7.1",
-    target: "4.4",
+    baseline: "4.4",
     ratio: "1.6",
   },
   pr_count: {
     current: "85.0",
-    target: "138.3",
+    baseline: "138.3",
     ratio: "0.6",
   },
 };
