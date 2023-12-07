@@ -66,3 +66,28 @@ exports.getCollaborationMetrics = async (request) => {
 
   return metrics;
 };
+
+/**
+ * Syncs the records of the database with the teams from PluralSight.
+ *
+ * @param {object} teams
+ * @param {*} database
+ * @return {Promise<*[]>}
+ */
+exports.refreshTeams = async (teams, database) => {
+  return Promise.allSettled(teams.map(async ({ id, name }) => {
+    const snapshot = await database
+      .collection('teams')
+      .where('name', '==', name)
+      .get();
+
+    if (snapshot.empty) {
+      await database.collection('teams').add({
+        id,
+        name,
+      });
+    }
+
+    return database.set({ id, name }, { merge: true });
+  }));
+};

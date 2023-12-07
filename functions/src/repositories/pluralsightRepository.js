@@ -263,7 +263,7 @@ exports.getParsedCollaborationMetrics = (metrics) => (Object.keys(metrics))
 
 /**
  * Returns a list of the teams that are registered.
- * 
+ *
  * @return {Promise<[Team]>}
  */
 exports.getTeams = async () => {
@@ -274,7 +274,7 @@ exports.getTeams = async () => {
  * Get a list of a combination of team id and name.
  *
  * @param {boolean} capitalise whether to change the name to all caps.
- * 
+ *
  * @return {Promise<[TeamId]>}
  */
 exports.getTeamIds = async (capitalise) => {

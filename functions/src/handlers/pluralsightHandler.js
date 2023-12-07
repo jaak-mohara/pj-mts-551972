@@ -7,9 +7,11 @@ const {
 const {
   getCodeMetrics,
   getCollaborationMetrics,
+  refreshTeams,
 } = require('../controllers/pluralsightControllers');
 const { authenticate } = require('../helpers/auth');
 const { AuthException } = require('../exceptions/AuthException');
+const { getTeamIds } = require('../repositories/pluralsightRepository');
 
 /**
  * Handles the metrics section from PluralSight.
@@ -60,4 +62,25 @@ exports.metrics = onRequest(async (request, response) => {
 
     return response.status(500).send(error.message);
   }
+});
+
+/**
+ * Updates the list of teams that we are storing for Pluralsight
+ * on the database.
+ *
+ * @param {*} request
+ * @param {*} response
+ *
+ * @return {Promise<object>}
+ */
+exports.teams = onRequest(async (request, response) => {
+  if (!await authenticate(request, firestore())) {
+    throw new AuthException();
+  }
+
+  const teams = await getTeamIds(true);
+
+  return response
+    .status(200)
+    .send(JSON.stringify(refreshTeams(teams, firestore())));
 });

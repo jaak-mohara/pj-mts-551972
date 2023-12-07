@@ -45,22 +45,4 @@ describe('teams', () => {
       expect(keys).toContain('results');
     });
   });
-
-  // describe('getTeamIds', () => {
-  //   it('should return a projecte list of the teams that are registered on Pluralsight Flow.', async () => {
-  //     mockGet.mockResolvedValueOnce(teamList);
-
-  //     const { getTeam } = require('../../../src/repositories/pluralsightRepository');
-  //     const metrics = await getTeams();
-
-  //     mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
-  //     mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/core/teams/');
-  //     expect(metrics).toBeTruthy();
-
-  //     expect(metrics).toHaveField('count');
-  //     expect(metrics).toHaveField('next');
-  //     expect(metrics).toHaveField('previous');
-  //     expect(metrics).toHaveField('results');
-  //   });
-  // });
 });
