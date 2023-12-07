@@ -16,6 +16,15 @@ exports.getCommits = async () => {
 };
 
 /**
+ * Retrieves a list of teams registered on Pluralsith Flow.
+ *
+ * @return {Promise<[Team]>}
+ */
+exports.getTeams = async () => {
+  return get('https://flow.pluralsight.com/v3/customer/core/teams/');
+};
+
+/**
  * Gets the collaboration averages for the given team and date range. If
  * no team is specified, the global averages are returned.
  *

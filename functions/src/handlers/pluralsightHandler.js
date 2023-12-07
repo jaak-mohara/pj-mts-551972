@@ -1,4 +1,5 @@
 const { onRequest } = require('firebase-functions/v2/https');
+const { firestore } = require('firebase-admin');
 
 const {
   MethodNotAllowedException,
@@ -15,7 +16,7 @@ const { AuthException } = require('../exceptions/AuthException');
  */
 exports.metrics = onRequest(async (request, response) => {
   try {
-    if (!await authenticate(request)) {
+    if (!await authenticate(request, firestore())) {
       throw new AuthException();
     }
 

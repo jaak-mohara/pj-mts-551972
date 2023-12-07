@@ -20,4 +20,4 @@ exports.divideNumbersInObject = (obj, divisor) => {
   }
 
   return newObj;
-}
+};

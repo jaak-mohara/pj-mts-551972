@@ -1,6 +1,5 @@
 const moment = require('moment');
 
-const { divideNumbersInObject } = require('../utils/objects');
 const {
   getWeeksAgoDate,
   getCurrentDate,
@@ -173,8 +172,8 @@ exports.compareMetrics = (
      * Map the keys of the coding metrics to an array of comparison objects.
      */
     .map((key) => {
-      const current = currentMetrics[key].toFixed(1);
-      const target = targetMetrics[key].toFixed(1);
+      const current = (currentMetrics[key] || 0).toFixed(1);
+      const target = (targetMetrics[key] || 0).toFixed(1);
       const ratio = target ? (current / target).toFixed(1) : 0;
 
       return { [key]: { current, [comparrisonField]: target, ratio } };
@@ -261,3 +260,29 @@ exports.getParsedCollaborationMetrics = (metrics) => (Object.keys(metrics))
 
     return acc;
   }, {});
+
+/**
+ * Returns a list of the teams that are registered.
+ * 
+ * @return {Promise<[Team]>}
+ */
+exports.getTeams = async () => {
+  return pluralsightService.getTeams();
+};
+
+/**
+ * Get a list of a combination of team id and name.
+ *
+ * @param {boolean} capitalise whether to change the name to all caps.
+ * 
+ * @return {Promise<[TeamId]>}
+ */
+exports.getTeamIds = async (capitalise) => {
+  const teams = await this.getTeams();
+
+  return teams.results
+    .map(({ id, name }) => ({
+      id,
+      name: capitalise ? name.toUpperCase() : name
+    }));
+};
