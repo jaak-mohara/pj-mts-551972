@@ -80,7 +80,9 @@ exports.teams = onRequest(async (request, response) => {
 
   const teams = await getTeamIds(true);
 
+  await refreshTeams(teams, firestore());
+
   return response
     .status(200)
-    .send(JSON.stringify(refreshTeams(teams, firestore())));
+    .send(JSON.stringify(teams.map(({ name }) => name)));
 });

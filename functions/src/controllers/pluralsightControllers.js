@@ -72,7 +72,7 @@ exports.getCollaborationMetrics = async (request) => {
  *
  * @param {object} teams
  * @param {*} database
- * @return {Promise<*[]>}
+ * @return {Promise<[*]>}
  */
 exports.refreshTeams = async (teams, database) => {
   return Promise.allSettled(teams.map(async ({ id, name }) => {
