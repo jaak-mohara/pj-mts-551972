@@ -15,5 +15,5 @@ exports.get = async (url) => {
       'Authorization': `Bearer ${process.env.PLURALSIGHT_API_KEY}`,
     },
   });
-  return response.json();
+  return response?.json();
 };

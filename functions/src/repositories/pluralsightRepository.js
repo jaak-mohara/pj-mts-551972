@@ -283,6 +283,6 @@ exports.getTeamIds = async (capitalise) => {
   return teams.results
     .map(({ id, name }) => ({
       id,
-      name: capitalise ? name.toUpperCase() : name
+      name: capitalise ? name.toUpperCase() : name,
     }));
 };
