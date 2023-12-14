@@ -11,15 +11,26 @@ const {
 } = require('../controllers/pluralsightControllers');
 const { authenticate } = require('../helpers/auth');
 const { AuthException } = require('../exceptions/AuthException');
-const { getTeamIds } = require('../repositories/pluralsightRepository');
+const {
+  getTeamIds,
+  getTeamIdByName,
+} = require('../repositories/pluralsightRepository');
 
 /**
  * Handles the metrics section from PluralSight.
  */
 exports.metrics = onRequest(async (request, response) => {
   try {
-    if (!await authenticate(request, firestore())) {
+    const database = firestore();
+    if (!await authenticate(request, database)) {
       throw new AuthException();
+    }
+
+    if (request.query.teamName) {
+      request.query.teamId = await getTeamIdByName(
+        request.query.teamName.toUpperCase(),
+        database,
+      );
     }
 
     if (

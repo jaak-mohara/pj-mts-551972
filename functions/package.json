@@ -27,6 +27,8 @@
     "tabWidth": 2
   },
   "devDependencies": {
+    "@firebase/testing": "^0.20.11",
+    "cd": "^0.3.3",
     "dotenv": "^16.3.1",
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",

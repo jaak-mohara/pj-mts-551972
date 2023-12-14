@@ -1,7 +1,15 @@
 const mockGet = jest.fn();
+const mockDB = {
+  collection: jest.fn(),
+  where: jest.fn(),
+  get: jest.fn(),
+};
 
 require('dotenv').config();
 
+const { database } = require('@firebase/testing');
+
+const { exampleObjectMetadata } = require('firebase-functions-test/lib/providers/storage');
 const { getDateRange } = require('../../../src/helpers/date');
 const { globalCollaborationBaselines, adjustedGlobalCollaborationBaselines, noTeamAdjustedCollaborationAverages, noTeamCollaborationAverages, teamCollaborationBaselines, teamAdjustedCollaboration, comparedCollaborationMetrics } = require('../../mockObjects/collaboration');
 const { singleTeam, teamList } = require('../../mockObjects/teams');
@@ -88,4 +96,54 @@ describe('teams', () => {
       });
     });
   });
+
+  describe('getTeamIdByName', () => {
+    it('should query the database and return an ID for the team.', async () => {
+
+      database.collection = mockDB.collection.mockReturnValue({
+        where: mockDB.where.mockReturnValue({
+          get: mockDB.get.mockResolvedValue({
+            empty: false,
+            docs: [{
+              id: 1,
+              data: () => ({
+                name: 'Team 1',
+              }),
+            }],
+          }),
+        }),
+      });
+
+      const { getTeamIdByName } = require('../../../src/repositories/pluralsightRepository');
+      const id = await getTeamIdByName('Team 1', database);
+
+      expect(mockDB.collection).toHaveBeenCalledTimes(1);
+      expect(mockDB.where).toHaveBeenCalledTimes(1);
+      expect(mockDB.get).toHaveBeenCalledTimes(1);
+      expect(id).toBeTruthy();
+
+      expect(id).toBe(1);
+    });
+
+    it('should query the database and return an ID for the team.', async () => {
+
+      database.collection = mockDB.collection.mockReturnValue({
+        where: mockDB.where.mockReturnValue({
+          get: mockDB.get.mockResolvedValue({
+            empty: true,
+            docs: [],
+          }),
+        }),
+      });
+
+      const { getTeamIdByName } = require('../../../src/repositories/pluralsightRepository');
+      const id = await getTeamIdByName('Team 1', database);
+
+      expect(mockDB.collection).toHaveBeenCalledTimes(1);
+      expect(mockDB.where).toHaveBeenCalledTimes(1);
+      expect(mockDB.get).toHaveBeenCalledTimes(1);
+
+      expect(id).toBe(0);
+    });
+  })
 });

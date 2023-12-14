@@ -286,3 +286,24 @@ exports.getTeamIds = async (capitalise) => {
       name: capitalise ? name.toUpperCase() : name,
     }));
 };
+
+/**
+ * Queries the database to see if the team exists and returns the ID
+ * of that team on Pluralsight.
+ *
+ * @param {string} name
+ * @param {*} database
+ * @return {Promise<number>}
+ */
+exports.getTeamIdByName = async (name, database) => {
+  const snapshot = await database
+    .collection('teams')
+    .where('name', '==', name)
+    .get();
+
+  if (snapshot.empty) {
+    return 0;
+  }
+
+  return snapshot.docs[0].data().id;
+};
