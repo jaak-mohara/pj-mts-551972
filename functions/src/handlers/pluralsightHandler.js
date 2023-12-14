@@ -85,15 +85,42 @@ exports.metrics = onRequest(async (request, response) => {
  * @return {Promise<object>}
  */
 exports.teams = onRequest(async (request, response) => {
-  if (!await authenticate(request, firestore())) {
-    throw new AuthException();
+  try {
+    const database = firestore();
+    if (!await authenticate(request, database)) {
+      throw new AuthException();
+    }
+
+    if (request.query.teamName) {
+      request.query.teamId = await getTeamIdByName(
+        request.query.teamName.toUpperCase(),
+        database,
+      );
+    }
+
+    if (
+      (new RegExp('^/refresh$|^/refresh\\??')).test(request.url)
+    ) {
+      const teams = await getTeamIds(true);
+
+      await refreshTeams(teams, firestore());
+
+      return response
+        .status(200)
+        .send(JSON.stringify(teams.map(({ name }) => name)));
+    }
+
+    return response
+      .status(404)
+      .send('Route not found.');
+  } catch (error) {
+    if (
+      error instanceof MethodNotAllowedException ||
+      error instanceof AuthException
+    ) {
+      return response.status(error.status).send(error.message);
+    }
+
+    return response.status(500).send(error.message);
   }
-
-  const teams = await getTeamIds(true);
-
-  await refreshTeams(teams, firestore());
-
-  return response
-    .status(200)
-    .send(JSON.stringify(teams.map(({ name }) => name)));
 });
