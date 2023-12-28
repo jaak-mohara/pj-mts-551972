@@ -107,6 +107,7 @@ describe('teams', () => {
             docs: [{
               id: 1,
               data: () => ({
+                id: 12312,
                 name: 'Team 1',
               }),
             }],
@@ -121,8 +122,7 @@ describe('teams', () => {
       expect(mockDB.where).toHaveBeenCalledTimes(1);
       expect(mockDB.get).toHaveBeenCalledTimes(1);
       expect(id).toBeTruthy();
-
-      expect(id).toBe(1);
+      expect(id).toBe(12312);
     });
 
     it('should query the database and return an ID for the team.', async () => {
