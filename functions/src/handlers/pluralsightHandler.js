@@ -19,7 +19,7 @@ const {
 /**
  * Handles the metrics section from PluralSight.
  */
-exports.metrics = onRequest(async (request, response) => {
+exports.comparisons = onRequest(async (request, response) => {
   try {
     const database = firestore();
     if (!await authenticate(request, database)) {
@@ -91,13 +91,6 @@ exports.teams = onRequest(async (request, response) => {
       throw new AuthException();
     }
 
-    if (request.query.teamName) {
-      request.query.teamId = await getTeamIdByName(
-        request.query.teamName.toUpperCase(),
-        database,
-      );
-    }
-
     if (
       (new RegExp('^/refresh$|^/refresh\\??')).test(request.url)
     ) {
@@ -108,6 +101,65 @@ exports.teams = onRequest(async (request, response) => {
       return response
         .status(200)
         .send(JSON.stringify(teams.map(({ name }) => name)));
+    }
+
+    return response
+      .status(404)
+      .send('Route not found.');
+  } catch (error) {
+    if (
+      error instanceof MethodNotAllowedException ||
+      error instanceof AuthException
+    ) {
+      return response.status(error.status).send(error.message);
+    }
+
+    return response.status(500).send(error.message);
+  }
+});
+
+/**
+ * Handles the metrics section from PluralSight.
+ */
+exports.metrics = onRequest(async (request, response) => {
+  try {
+    const database = firestore();
+    if (!await authenticate(request, database)) {
+      throw new AuthException();
+    }
+
+    if (request.query.teamName) {
+      request.query.teamId = await getTeamIdByName(
+        request.query.teamName.toUpperCase(),
+        database,
+      );
+    }
+
+    if (
+      (new RegExp('^/collaboration$|^/collaboration\\??')).test(request.url)
+    ) {
+      return response
+        .status(200)
+        .send(JSON.stringify(await getCollaborationMetrics(request)));
+    }
+
+    if (
+      (new RegExp('^/code$|^/code\\??')).test(request.url)
+    ) {
+      return response
+        .status(200)
+        .send(JSON.stringify(await getCodeMetrics(request)));
+    }
+
+    if (
+      (new RegExp('^/$|^/\\??')).test(request.url)
+    ) {
+      return response
+        .status(200)
+        .send(JSON.stringify({
+          ...(await getCollaborationMetrics(request)),
+          ...(await getCodeMetrics(request)),
+        }));
     }
 
     return response

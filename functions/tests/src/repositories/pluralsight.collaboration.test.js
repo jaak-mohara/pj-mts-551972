@@ -55,7 +55,7 @@ describe('collaboration', () => {
       const metrics = await getCollaborationMetricBaselines(singleTeam?.id);
 
       mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
-      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average&team_id=95611');
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-10-28:2023-11-25]&fields=average');
       expect(metrics).toBeTruthy();
     });
 
@@ -137,6 +137,34 @@ describe('collaboration', () => {
       mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-11-18:2023-11-25]&fields=average');
       expect(metrics).toBeTruthy();
       expect(metrics).toMatchObject(comparedCollaborationMetrics);
+    });
+  });
+  describe('getPureCollaborationMetrics', () => {
+    it('should return a list of no-team collaboration metrics', async () => {
+      mockGet
+        .mockResolvedValueOnce(noTeamCollaborationAverages)
+        .mockResolvedValueOnce(globalCollaborationBaselines);
+
+      const { getPureCollaborationMetrics } = require('../../../src/repositories/pluralsightRepository');
+      const metrics = await getPureCollaborationMetrics(
+        '2023-11-18',
+        '2023-11-25',
+      );
+
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow-api.pluralsight.com/collaboration/pullrequest/metrics/?date_range=[2023-11-18:2023-11-25]&fields=average');
+      expect(metrics).toBeTruthy();
+      expect(metrics).toMatchObject({
+        reaction_time: 5.68,
+        responsiveness: 1.92,
+        time_to_merge: 5.46,
+        time_to_first_comment: 14.16,
+        rework_time: 9.27,
+        iterated_prs: 100,
+        unreviewed_prs: 40,
+        thoroughly_reviewed_prs: 7.06,
+        pr_count: 85,
+      });
     });
   });
 });

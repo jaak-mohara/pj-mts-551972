@@ -1,3 +1,11 @@
+/**
+ * Checks to see if the request is authenticated.
+ *
+ * @param {*} request
+ * @param {*} database
+ *
+ * @return {boolean}
+ */
 exports.authenticate = async (request, database) => {
   const apiKey = request.headers['x-api-key'];
 

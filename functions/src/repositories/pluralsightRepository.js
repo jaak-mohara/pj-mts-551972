@@ -22,15 +22,22 @@ exports.changeToWeekly = (metrics, startDate, endDate) => {
 
   return {
     ...metrics,
-    iterated_prs: {
-      average: metrics.iterated_prs.average / weeks,
-    },
-    unreviewed_prs: {
-      average: metrics.unreviewed_prs.average / weeks,
-    },
-    thoroughly_reviewed_prs: {
-      average: metrics.thoroughly_reviewed_prs.average / weeks,
-    },
+    iterated_prs: typeof metrics.iterated_prs === 'object' ?
+      {
+        average: metrics.iterated_prs.average / weeks,
+      } :
+      metrics.iterated_prs / weeks,
+    unreviewed_prs: typeof metrics.unreviewed_prs === 'object' ?
+      {
+        average: metrics.unreviewed_prs.average / weeks,
+      } :
+      metrics.unreviewed_prs / weeks,
+    thoroughly_reviewed_prs: typeof metrics
+      .thoroughly_reviewed_prs === 'object' ?
+      {
+        average: metrics.thoroughly_reviewed_prs.average / weeks,
+      } :
+      metrics.thoroughly_reviewed_prs / weeks,
     pr_count: metrics.pr_count / weeks,
   };
 };
@@ -46,7 +53,6 @@ exports.getCodingMetricsBaselines = async (teamId, weeksAgo = 4) => {
   const response = await pluralsightService.getCodingMetricsForPeriod(
     getWeeksAgoDate(null, weeksAgo),
     getCurrentDate(),
-    teamId,
   );
 
   if (response && response.results) {
@@ -116,7 +122,6 @@ exports.getCollaborationMetricBaselines = async (
     .getCollaborationMetrics(
       getWeeksAgoDate(null, weeksAgo),
       getCurrentDate(),
-      teamId,
     );
 };
 
@@ -126,24 +131,45 @@ exports.getCollaborationMetricBaselines = async (
  * @param {string} startDate
  * @param {string} endDate
  * @param {number} teamId
+ * @param {boolean} extractAverage
  *
  * @return { Promise<CollaborationMetrics> }
  */
-exports.getCollaborationMetrics = (
+exports.getCollaborationMetrics = async (
   startDate,
   endDate,
   teamId = null,
+  extractAverage = false,
 ) => {
   if (!endDate) {
     throw new ValidationException('End date is required');
   }
 
-  return pluralsightService
+  const metrics = await pluralsightService
     .getCollaborationMetrics(
       startDate || getWeeksAgoDate(endDate, 1),
       endDate,
       teamId,
     );
+
+  if (!extractAverage) {
+    return metrics;
+  }
+
+  const response = {};
+
+  Object
+    .keys(metrics)
+    .forEach((key) => {
+      if (typeof metrics[key] === 'object') {
+        response[key] = metrics[key].average;
+        return;
+      }
+
+      response[key] = metrics[key];
+    });
+
+  return response;
 };
 
 /**
@@ -240,10 +266,40 @@ exports.getComparedCollaborationMetrics = async (
       teamId,
     ), getWeeksAgoDate(upperBound, 4), upperBound);
 
-  return this.compareMetrics(
-    this.getParsedCollaborationMetrics(currentMetrics),
-    this.getParsedCollaborationMetrics(targetMetrics),
-  );
+  return this
+    .compareMetrics(
+      this.getParsedCollaborationMetrics(currentMetrics),
+      this.getParsedCollaborationMetrics(targetMetrics),
+    );
+};
+
+/**
+ * Returns a list of the pure collaboration metrics.
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} teamId
+ *
+ * @return {Promise<T>}
+ */
+exports.getPureCollaborationMetrics = async (
+  startDate,
+  endDate,
+  teamId,
+) => {
+  const upperBound = endDate || getCurrentDate();
+
+  return this
+    .changeToWeekly(
+      await this.getCollaborationMetrics(
+        startDate || getWeeksAgoDate(upperBound, 1),
+        upperBound,
+        teamId,
+        true,
+      ),
+      startDate,
+      endDate,
+    );
 };
 
 /**
