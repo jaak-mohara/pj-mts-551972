@@ -6,7 +6,7 @@ const { getDateRange } = require('../../../src/helpers/date');
 const { no_team_period, team_period, compared_period_metrics } = require('../../mockObjects/codingMetrics')
 const { singleTeam } = require('../../mockObjects/teams');
 
-const mockTests = process.env.MOCK_TESTS === 'true';
+const mockTests = !process.env.MOCK_TESTS || process.env.MOCK_TESTS === 'true';
 mockTests && jest.mock('../../../src/utils/fetch', () => ({
   get: mockGet,
 }));
@@ -148,4 +148,34 @@ describe('codingMetrics', () => {
       expect(comparedCodingMetrics).toEqual(compared_period_metrics);
     })
   });
-})
+
+  describe('getPureCodingMetrics', () => {
+    it('should return a list of pure coding metrics', async () => {
+      mockGet
+        .mockResolvedValueOnce(team_period);
+
+      const {
+        getPureCodingMetrics
+      } = require('../../../src/repositories/pluralsightRepository');
+
+      /*
+        {
+          active_days: 3.41,
+          commit_count: 3.56,
+          total_impact: 158.1,
+          total_efficiency: 80.9,
+        }
+      */
+
+      const metrics = await getPureCodingMetrics(
+        '2023-11-18',
+        '2023-11-25',
+      );
+
+      mockTests && expect(mockGet).toHaveBeenCalledTimes(1);
+      mockTests && expect(mockGet).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/metrics/code_fundamentals/period_metrics/?start_date=2023-11-18&end_date=2023-11-25&include_nested_teams=true&resolution=period');
+
+      expect(metrics).toBeTruthy();
+    });
+  });
+});

@@ -240,6 +240,22 @@ exports.getComparedCodingMetrics = async (startDate, endDate, teamId) => {
 };
 
 /**
+ * Gets the team's pure coding metrics over the last 4 weeks.
+ *
+ * @param {string} startDate
+ * @param {string} endDate
+ * @param {number} teamId
+ * @return {Promise<{ComparedCodingMetrics}>}
+ */
+exports.getPureCodingMetrics = async (startDate, endDate, teamId) => {
+  return exports.getCodingMetrics(
+    startDate,
+    endDate,
+    teamId,
+  );
+};
+
+/**
  * Returns a list of the collaboration metrics compared with the baseline.
  *
  * @param {string} startDate

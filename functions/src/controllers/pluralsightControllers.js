@@ -3,6 +3,8 @@ const logger = require('firebase-functions/logger');
 const {
   getComparedCodingMetrics,
   getComparedCollaborationMetrics,
+  getPureCollaborationMetrics,
+  getPureCodingMetrics,
 } = require('../repositories/pluralsightRepository');
 const {
   getCurrentDate,
@@ -18,7 +20,7 @@ const {
  * @param {*} request
  * @return {Promise<object>}
  */
-exports.getCodeMetrics = async (request) => {
+exports.getCodeMetrics = (request) => {
   logger.info('codeMetrics', request.query);
 
   if (request.method !== 'GET') {
@@ -29,15 +31,14 @@ exports.getCodeMetrics = async (request) => {
     endDate = getCurrentDate(),
     startDate = null,
     teamId = null,
+    compare = false,
   } = request.query;
 
-  const metrics = await getComparedCodingMetrics(
-    startDate,
-    endDate,
-    teamId,
-  );
+  if (compare) {
+    return getComparedCodingMetrics(startDate, endDate, teamId);
+  }
 
-  return metrics;
+  return getPureCodingMetrics(startDate, endDate, teamId);
 };
 
 /**
@@ -45,7 +46,7 @@ exports.getCodeMetrics = async (request) => {
  * @param {*} request
  * @return {Promise<object>}
  */
-exports.getCollaborationMetrics = async (request) => {
+exports.getCollaborationMetrics = (request) => {
   logger.info('collaborationMetrics', request.query);
 
   if (request.method !== 'GET') {
@@ -56,15 +57,14 @@ exports.getCollaborationMetrics = async (request) => {
     endDate = getCurrentDate(),
     startDate = getWeeksAgoDate(getCurrentDate(), 1),
     teamId = null,
+    compare = false,
   } = request.query;
 
-  const metrics = await getComparedCollaborationMetrics(
-    startDate,
-    endDate,
-    teamId,
-  );
+  if (!compare) {
+    return getComparedCollaborationMetrics(startDate, endDate, teamId);
+  }
 
-  return metrics;
+  return getPureCollaborationMetrics(startDate, endDate, teamId);
 };
 
 /**
