@@ -14,6 +14,8 @@ const { AuthException } = require('../exceptions/AuthException');
 const {
   getTeamIds,
   getTeamIdByName,
+  getPureCollaborationMetrics,
+  getPureCodingMetrics,
 } = require('../repositories/pluralsightRepository');
 
 /**
@@ -140,7 +142,7 @@ exports.metrics = onRequest(async (request, response) => {
     ) {
       return response
         .status(200)
-        .send(JSON.stringify(await getCollaborationMetrics(request)));
+        .send(JSON.stringify(await getPureCollaborationMetrics(request)));
     }
 
     if (
@@ -148,7 +150,7 @@ exports.metrics = onRequest(async (request, response) => {
     ) {
       return response
         .status(200)
-        .send(JSON.stringify(await getCodeMetrics(request)));
+        .send(JSON.stringify(await getPureCodingMetrics(request)));
     }
 
     if (

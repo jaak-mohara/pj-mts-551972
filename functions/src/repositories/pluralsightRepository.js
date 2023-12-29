@@ -4,7 +4,7 @@ const {
   getWeeksAgoDate,
   getCurrentDate,
 } = require('../helpers/date');
-const pluralsightService = require('../services/pluralsightService');
+const pluralsightService = require('../services/pluralsight');
 const { ValidationException } = require('../exceptions/ValidationException');
 
 /**
