@@ -31,7 +31,7 @@ describe('teams', () => {
     it('should return a list of the teams that are registered on Pluralsight Flow.', async () => {
       mockGet.mockResolvedValueOnce(teamList);
 
-      const { getTeams } = require('../../../src/services/pluralsightService');
+      const { getTeams } = require('../../../src/services/pluralsight');
       const metrics = await getTeams();
 
       mockTests && expect(mockGet).toHaveBeenCalledTimes(1);

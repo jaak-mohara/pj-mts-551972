@@ -39,7 +39,7 @@ describe('collaborationService', () => {
   describe('getCollaborationMetrics', () => {
     it('should return collaboration metrics for the week if no date range is specified', async () => {
       mockGet.mockResolvedValueOnce(globalCollaborationAverages);
-      const { getCollaborationMetrics } = require('../../../src/services/pluralsightService');
+      const { getCollaborationMetrics } = require('../../../src/services/pluralsight');
       const metrics = await getCollaborationMetrics(
         '2023-11-18',
         '2023-11-25',
@@ -52,7 +52,7 @@ describe('collaborationService', () => {
 
     it('should return a truthy value', async () => {
       mockGet.mockResolvedValueOnce(globalCollaborationAverages);
-      const { getCollaborationMetrics } = require('../../../src/services/pluralsightService');
+      const { getCollaborationMetrics } = require('../../../src/services/pluralsight');
       const metrics = await getCollaborationMetrics(
         '2023-11-18',
         '2023-11-25',
@@ -66,7 +66,7 @@ describe('collaborationService', () => {
     it('should return a list of collaboration metrics', async () => {
       mockGet
         .mockResolvedValueOnce(noTeamCollaborationAverages);
-      const { getCollaborationMetrics } = require('../../../src/services/pluralsightService');
+      const { getCollaborationMetrics } = require('../../../src/services/pluralsight');
       const metrics = await getCollaborationMetrics(
         '2023-11-18',
         '2023-11-25',
