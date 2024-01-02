@@ -1,5 +1,7 @@
 const mockGetClient = jest.fn();
 
+require('dotenv').config();
+
 const mockGoogle = {
   auth: {
     GoogleAuth: class {
@@ -16,7 +18,7 @@ const mockGoogle = {
 
 const { GoogleSheetService } = require('../../../src/services/googleSheets');
 
-jest.mock('googleapis', () => ({
+false && jest.mock('googleapis', () => ({
   google: mockGoogle,
 }));
 
@@ -24,8 +26,17 @@ describe('googleSheetsService', () => {
   describe('getAuthToken', () => {
     it('should return an auth token', async () => {
       mockGetClient.mockReturnValue('authToken');
-      const authToken = (new GoogleSheetService()).getAuthToken();
+      const authToken = await (new GoogleSheetService()).getAuthToken();
       expect(authToken).toBeTruthy();
     });
   });
+
+  describe('get', () => {
+    it('should return a list of values for a valid range', async () => {
+      const service = new GoogleSheetService();
+      const response = await service.get('Sheet8!A2:A4');
+
+      expect(response).toBeTruthy();
+    }, 10000);
+  })
 });
