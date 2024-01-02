@@ -14,7 +14,7 @@ const mockGoogle = {
   },
 };
 
-const googleSheetsService = require('../../../src/services/googleSheets');
+const { GoogleSheetService } = require('../../../src/services/googleSheets');
 
 jest.mock('googleapis', () => ({
   google: mockGoogle,
@@ -24,7 +24,7 @@ describe('googleSheetsService', () => {
   describe('getAuthToken', () => {
     it('should return an auth token', async () => {
       mockGetClient.mockReturnValue('authToken');
-      const authToken = await googleSheetsService.getAuthToken();
+      const authToken = (new GoogleSheetService()).getAuthToken();
       expect(authToken).toBeTruthy();
     });
   });
