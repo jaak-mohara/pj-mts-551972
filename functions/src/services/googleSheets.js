@@ -1,22 +1,28 @@
 const { google } = require('googleapis');
+const {
+  InvalidRangeException,
+} = require('../exceptions/InvalidRangeException');
 
 exports.GoogleSheetService = class GoogleSheetService {
   /**
    * Sets the auth token and spreadsheet ID.
    *
+   * @param {google.auth.GoogleAuth} client
    * @param {string} spreadsheetId
    */
-  constructor(spreadsheetId = null) {
-    this.setClient();
+  constructor(client = null, spreadsheetId = null) {
+    this.setClient(client);
     this.setSpreadsheetId(spreadsheetId);
   }
 
   /**
    * Sets the client that we will be working with to interact with Google
    * Sheets.
+   *
+   * @param {google.auth.GoogleAuth} client
    */
-  async setClient() {
-    this.client = google.sheets({
+  async setClient(client) {
+    this.client = client || google.sheets({
       version: 'v4',
       auth: await this.getAuthToken(),
     });
@@ -94,13 +100,100 @@ exports.GoogleSheetService = class GoogleSheetService {
    * @return {Promise<Array<Array<string>>>}
    */
   async get(range) {
-    const sheets = await this.getClient();
-    const spreadsheetId = this.getSpreadsheetId();
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
+    try {
+      const sheets = await this.getClient();
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: this.getSpreadsheetId(),
+        range,
+      });
 
-    return response.data.values;
+      return response.data.values;
+    } catch (error) {
+      console.error(error.message);
+      if (error.errors[0].reason === 'badRequest') {
+        throw new InvalidRangeException('Unable to parse: ' + range + '.');
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Sets the values from a Google Sheet.
+   *
+   * @param {string} range
+   * @param {Array<Array<string>>} values
+   * @param {'ROWS'|'COLUMNS'} dimension
+   *
+   * @return {Promise<{
+   *    spreadsheetId: string,
+   *    updatedRange: string,
+   *    updatedRows: number,
+   *    updatedColumns: number,
+   *    updatedCells: number,
+   * }>}
+   */
+  async set(range, values, dimension = 'ROWS') {
+    try {
+      const sheets = await this.getClient();
+      const response = await sheets.spreadsheets.values
+        .update({
+          spreadsheetId: this.getSpreadsheetId(),
+          range,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            majorDimension: dimension,
+            values,
+          },
+        });
+
+      return response.data;
+    } catch (error) {
+      console.error(error.message);
+      if (error.errors[0].reason === 'badRequest') {
+        throw new InvalidRangeException('Unable to parse: ' + range + '.');
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Appends the values as a new row to the given sheet.
+   *
+   * @param {string} tabName
+   * @param {Array<Array<string>>} values
+   *
+   * @return {Promise<{
+   *    spreadsheetId: string,
+   *    updatedRange: string,
+   *    updatedRows: number,
+   *    updatedColumns: number,
+   *    updatedCells: number,
+   * }>}
+   */
+  async appendRow(tabName, values) {
+    try {
+      const sheets = await this.getClient();
+      const response = await sheets.spreadsheets.values
+        .append({
+          spreadsheetId: this.getSpreadsheetId(),
+          range: tabName,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            majorDimension: 'ROWS',
+            values: [values],
+          },
+        });
+
+      return response.data.updates;
+    } catch (error) {
+      console.error(error.message);
+      if (error.errors[0].reason === 'badRequest') {
+        throw new InvalidRangeException('Unable to parse: ' + tabName + '.');
+      }
+
+      throw error;
+    }
   }
 };
