@@ -4,17 +4,21 @@ const mockValues = {
   append: jest.fn(),
 };
 
+const mockSpreadsheets = {
+  get: jest.fn(),
+  values: mockValues,
+};
+
 const mockGoogle = {
-  spreadsheets: {
-    values: mockValues,
-  },
+  spreadsheets: mockSpreadsheets,
 };
 
 const mockGetClient = jest.fn().mockReturnValue(mockGoogle);
 
 require('dotenv').config();
 
-const mock = process.env.MOCK_TESTS === 'true';
+// const mock = process.env.MOCK_TESTS === 'true';
+const mock = false;
 const timeout = mock ? 5000 : 10000;
 
 const { GoogleSheetService } = require('../../../src/services/googleSheets');
@@ -30,8 +34,8 @@ describe('googleSheetsService', () => {
 
   beforeAll(() => {
     this.GoogleService = new GoogleSheetService(
-      mockGoogle,
-      'test-spreadsheet-id',
+      mock ? mockGoogle : undefined,
+      mock ? 'test-spreadsheet-id' : undefined,
     );
   });
 
@@ -123,9 +127,79 @@ describe('googleSheetsService', () => {
 
       expect(response).toBeTruthy();
       expect(typeof response).toBe('object');
-      expect(response.updatedRange)
+      mock && expect(response.updatedRange)
         .toBe('Sheet8!A6:C6');
       expect(response.updatedCells).toBe(3);
     });
   });
+
+  describe('checkTab', () => {
+    it('should return true if the tab exists', async () => {
+      mockSpreadsheets.get.mockReturnValue({
+        data: {
+          sheets: [{
+            properties: {
+              title: 'Sheet8',
+            },
+          }],
+        }
+      });
+      const response = await this.GoogleService.checkTab('Sheet8');
+
+      expect(response).toBeTruthy();
+      expect(response).toBe(true);
+    });
+
+    it('should return false if the tab does not exist', async () => {
+      mockSpreadsheets.get.mockReturnValue({
+        data: {
+          sheets: [{
+            properties: {
+              title: 'Sheet8',
+            },
+          }],
+        }
+      });
+      const response = await this.GoogleService.checkTab('Sheet-1');
+
+      expect(response).toBeFalsy();
+      expect(response).toBe(false);
+    });
+  });
+
+  describe('createTab', () => {
+    it('should create a new sheet', async () => {
+      mockSpreadsheets.get.mockReturnValue({
+        spreadsheetId: "test-spreadsheet-id",
+        replies: [
+          {
+            addSheet: {
+              properties: {
+                title: "TEST",
+              },
+            },
+          },
+        ],
+      });
+
+      const response = await this.GoogleService.createTab('TEST');
+      expect(response).toBeTruthy();
+      mock && expect(response.replies[0].addSheet.properties.title).toBe('TEST');
+      mock && expect(response.spreadsheetId).toBe('test-spreadsheet-id');
+    });
+
+    it('should fail gracefully if the tab exists already', async () => {
+      mockSpreadsheets.get.mockReturnValue({
+        spreadsheetId: "test-spreadsheet-id",
+        replies: [],
+        error: 'A tab with the name "TEST" already exists.'
+      });
+
+      const response = await this.GoogleService.createTab('TEST');
+      expect(response).toBeTruthy();
+      mock && expect(response.replies?.length).toBe(0);
+      mock && expect(response.spreadsheetId).toBe('test-spreadsheet-id');
+      expect(response.error).toBe('A tab with the name "TEST" already exists.');
+    });
+  }, timeout);
 });

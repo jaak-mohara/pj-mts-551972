@@ -196,4 +196,70 @@ exports.GoogleSheetService = class GoogleSheetService {
       throw error;
     }
   }
+
+  /**
+   * Checks if a tab exists in the spreadsheet.
+   *
+   * @param {string} tabName
+   * @return {boolean}
+   */
+  async checkTab(tabName) {
+    const sheets = await this.getClient();
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: this.getSpreadsheetId(),
+    });
+
+    const sheetsList = response.data.sheets
+      .map((sheet) => sheet.properties.title);
+
+    return sheetsList.includes(tabName);
+  }
+
+  /**
+   * Function to create a new tab in the spreadsheet.
+   *
+   * @param {string} tabName
+   * @return {Promise<{
+   *  spreadsheetId: string,
+   *  replies: ?Array<{
+   *    addSheet: {
+   *      properties: {
+   *        title: string,
+   *      }
+   *    }
+   *  }>,
+   *  error: ?string
+   * }>}
+   */
+  async createTab(tabName) {
+    const sheets = await this.getClient();
+    try {
+      const response = await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: this.getSpreadsheetId(),
+        resource: {
+          requests: [{
+            addSheet: {
+              properties: {
+                title: tabName,
+              },
+            },
+          }],
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error(error.message);
+
+      if (error.message.includes('already exists')) {
+        return {
+          spreadsheetId: this.getSpreadsheetId(),
+          replies: [],
+          error: 'A tab with the name "' + tabName + '" already exists.',
+        };
+      }
+
+      throw error;
+    }
+  }
 };
