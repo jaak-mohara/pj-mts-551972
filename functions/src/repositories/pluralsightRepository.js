@@ -247,7 +247,7 @@ exports.getComparedCodingMetrics = async (startDate, endDate, teamId) => {
  * @param {number} teamId
  * @return {Promise<{ComparedCodingMetrics}>}
  */
-exports.getPureCodingMetrics = async (startDate, endDate, teamId) => {
+exports.getPureCodingMetrics = (startDate, endDate, teamId) => {
   return exports.getCodingMetrics(
     startDate,
     endDate,

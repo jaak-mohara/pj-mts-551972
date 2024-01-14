@@ -198,6 +198,48 @@ exports.GoogleSheetService = class GoogleSheetService {
   }
 
   /**
+   * Appends the values as new rows in bulk to the sheets included in the value.
+   *
+   * @param {Array<{
+   *  range: string,
+   *  values: Array<Array<string>>,
+   * }>} values
+   *
+   * @return {Promise<{
+  *    spreadsheetId: string,
+  *    updatedRange: string,
+  *    updatedRows: number,
+  *    updatedColumns: number,
+  *    updatedCells: number,
+  * }>[]}
+  */
+  async bulkUpdateRow(values) {
+    try {
+      const sheets = await this.getClient();
+      const response = await sheets.spreadsheets.values
+        .batchUpdate({
+          spreadsheetId: this.getSpreadsheetId(),
+          resource: {
+            data: values.map((item) => ({
+              ...item,
+              majorDimension: 'ROWS',
+            })),
+            valueInputOption: 'USER_ENTERED',
+          },
+        });
+
+      return response.data.responses;
+    } catch (error) {
+      console.error(error.message);
+      if (error.errors[0].reason === 'badRequest') {
+        throw new InvalidRangeException('Unable to parse values.');
+      }
+
+      throw error;
+    }
+  }
+
+  /**
    * Checks if a tab exists in the spreadsheet.
    *
    * @param {string} tabName

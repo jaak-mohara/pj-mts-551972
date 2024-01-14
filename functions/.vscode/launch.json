@@ -40,7 +40,7 @@
         "--runInBand",
         "-t",
         // "${input:pickGroup}",
-        "createTab",
+        "fetchMetrics",
         "--detectOpenHandles",
         "--watch"
       ],
