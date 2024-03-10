@@ -54,12 +54,16 @@ describe('googleSheetController', () => {
   }, timeout);
 
   describe('fetchMetrics', () => {
-    false && it('should return truthy', async () => {
+    it('should return truthy', async () => {
       const { updateMetrics } = require('../../../src/controllers/googleSheets');
 
       const teamIds = mock ?
         [{ id: 1, name: 'TEAM_1' }, { id: 2, name: 'TEAM_2' }]
         : await getTeamIds(true);
+
+      const toets = teamIds
+        .map(({ name }) => name)
+        .sort((a, b) => a.localeCompare(b));
 
       const response = await updateMetrics(
         teamIds,

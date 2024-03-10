@@ -352,6 +352,7 @@ exports.getTeams = async () => {
 exports.getTeamIds = async (capitalise) => {
   const teams = await this.getTeams();
 
+  console.log(teams.results);
   return teams.results
     .map(({ id, name }) => ({
       id,

@@ -66,3 +66,51 @@ exports.getCodingMetricsForPeriod = (startDate, endDate, teamId = null) => {
     '&include_nested_teams=true&resolution=period',
   );
 };
+
+/**
+ * Fetches the full list of repos from the Pluralsight Flow API.
+ *
+ * @param {string} tag
+ *
+ * @return {object}
+ */
+exports.getRepos = async (tag = null) => {
+  const LIMIT = 1000;
+
+  // Build up the list of repos to account for the pagination.
+  const repoList = [];
+  let response = null;
+  let url = `https://flow.pluralsight.com/v3/customer/core/repos/?limit=${LIMIT}`;
+
+  while (url !== null) {
+    response = await get(url);
+    repoList.push(...response.results);
+    url = response.next;
+  }
+
+  return class {
+    /**
+     * Returns a complete list of all the repos on PluralSight Flow.
+     *
+     * @return {object[]}
+     */
+    static getList() {
+      return repoList;
+    }
+
+    /**
+     * Returns a list of all the tags that are registered on PluralSight Flow.
+     *
+     * @return {Set<string>}
+     */
+    static getTagList() {
+      const tagNames = new Set();
+
+      repoList.forEach(({ tags }) => {
+        tags.forEach(({ name }) => tagNames.add(name));
+      });
+
+      return tagNames;
+    }
+  };
+};

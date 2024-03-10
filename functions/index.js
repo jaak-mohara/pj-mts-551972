@@ -2,12 +2,8 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-const {
-  comparisons,
-  teams,
-  metrics,
-} = require('./src/handlers/pluralsightHandler');
+const { weeklyCount } = require('./src/handlers/sheetHandler');
+const { weeklyUpdate } = require('./src/handlers/pluralsightHandler');
 
-exports.comparisons = comparisons;
-exports.teams = teams;
-exports.metrics = metrics;
+exports.weeklyCount = weeklyCount;
+exports.weeklyUpdate = weeklyUpdate;

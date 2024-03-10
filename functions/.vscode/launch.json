@@ -40,7 +40,7 @@
         "--runInBand",
         "-t",
         // "${input:pickGroup}",
-        "fetchMetrics",
+        "getRepos",
         "--detectOpenHandles",
         "--watch"
       ],

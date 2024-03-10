@@ -69,7 +69,7 @@ exports.updateMetrics = async (
         [key]: metrics[key],
       }), {});
 
-    const response = await googleSheetsService
+    const response = googleSheetsService
       .appendRow(
         name,
         [
@@ -79,9 +79,17 @@ exports.updateMetrics = async (
       );
 
     try {
-      return response;
+      await response;
+      return {
+        name,
+        success: true,
+      };
     } catch (error) {
       console.error(error.message);
+      return {
+        name,
+        success: false,
+      };
     }
   }));
 };

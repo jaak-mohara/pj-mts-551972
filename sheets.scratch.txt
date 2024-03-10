@@ -1,0 +1,3 @@
+=VLOOKUP(Max(INDIRECT(A3&"!$B$2:$B")),INDIRECT(A3&"!$A$2:$N"),VLOOKUP(C2, Metrics!$A$2:$B,2,false),false)
+
+INDIRECT(A3&"!$A$2:$N")

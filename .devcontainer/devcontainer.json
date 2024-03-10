@@ -32,7 +32,8 @@
 				"dbaeumer.vscode-eslint",
 				"Orta.vscode-jest",
 				"GitHub.copilot",
-				"mhutchie.git-graph"
+				"mhutchie.git-graph",
+				"kavod-io.vscode-jest-test-adapter"
 			]
 		}
 	},

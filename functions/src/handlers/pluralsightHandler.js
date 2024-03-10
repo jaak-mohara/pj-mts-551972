@@ -178,3 +178,9 @@ exports.metrics = onRequest(async (request, response) => {
     return response.status(500).send(error.message);
   }
 });
+
+exports.weeklyUpdate = onRequest(async (request, response) => {
+  const teamIds = await getTeamIds(true);
+  console.log('Updating metrics for teamIds: ', teamIds);
+  // await updateMetrics(teamIds, new GoogleSheetService());
+});
