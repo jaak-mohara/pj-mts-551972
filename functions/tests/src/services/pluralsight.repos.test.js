@@ -97,5 +97,28 @@ describe('getRepos', () => {
 
     expect(get).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/core/repos/?limit=1000');
     expect(repos.getReposByTag('taos').length).toEqual(2);
+    expect(repos.getReposByTag('taos').map(({ id }) => id).join(',')).toEqual('2917458,2961111');
+  });
+
+  it('should return an empty list if the tag does not exist', async () => {
+    const localMockResponse = mockRepoResponse;
+
+    get.mockResolvedValue(localMockResponse);
+
+    const repos = await getRepos();
+
+    expect(get).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/core/repos/?limit=1000');
+    expect(repos.getReposByTag('test')).toEqual([]);
+  });
+
+  // It should include the tag in the get request if one was sent to the getRepos function
+  it('should include the tag in the get request if one was sent to the getRepos function', async () => {
+    const localMockResponse = mockRepoResponse;
+
+    get.mockResolvedValue(localMockResponse);
+
+    const repos = await getRepos('test');
+
+    expect(get).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/core/repos/?limit=1000&tags__name=test');
   });
 });
