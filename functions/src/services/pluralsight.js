@@ -80,7 +80,7 @@ exports.getRepos = async (tag = null) => {
   // Build up the list of repos to account for the pagination.
   const repoList = [];
   let response = null;
-  let url = `https://flow.pluralsight.com/v3/customer/core/repos/?limit=${LIMIT}`;
+  let url = `https://flow.pluralsight.com/v3/customer/core/repos/?limit=${LIMIT}${tag !== null ? `&tags__name=${tag}` : ''}`;
 
   while (url !== null) {
     response = await get(url);
@@ -111,6 +111,18 @@ exports.getRepos = async (tag = null) => {
       });
 
       return tagNames;
+    }
+
+    /**
+     * Filters the repos by the given tag.
+     *
+     * @param {string} repoTag
+     *
+     * @return {string[]}
+     */
+    static getReposByTag(repoTag = tag) {
+      return repoList
+        .filter(({ tags }) => tags.some(({ name }) => name === repoTag));
     }
   };
 };

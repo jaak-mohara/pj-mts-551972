@@ -87,4 +87,15 @@ describe('getRepos', () => {
       "survey shack",
     ]);
   });
+
+  it('should return a list of repos filtered by a specific tag', async () => {
+    const localMockResponse = mockRepoResponse;
+
+    get.mockResolvedValue(localMockResponse);
+
+    const repos = await getRepos();
+
+    expect(get).toHaveBeenCalledWith('https://flow.pluralsight.com/v3/customer/core/repos/?limit=1000');
+    expect(repos.getReposByTag('taos').length).toEqual(2);
+  });
 });
